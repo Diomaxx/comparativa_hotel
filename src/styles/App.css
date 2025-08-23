@@ -1,4 +1,4 @@
-/* App.css - Versión Mejorada */
+/* App.css - Versión Mejorada con elementos a pantalla completa */
 
 /* Variables CSS para paleta de colores */
 :root {
@@ -6,12 +6,12 @@
   --sdlc-light: #eff6ff;
   --sdlc-gradient-start: #3b82f6;
   --sdlc-gradient-end: #1d4ed8;
-  
+
   --stlc-primary: #059669;
   --stlc-light: #ecfdf5;
   --stlc-gradient-start: #10b981;
   --stlc-gradient-end: #047857;
-  
+
   --neutral-50: #f9fafb;
   --neutral-100: #f3f4f6;
   --neutral-200: #e5e7eb;
@@ -38,7 +38,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: 
+  background-image:
     radial-gradient(circle at 25% 25%, rgba(37, 99, 235, 0.03) 0%, transparent 50%),
     radial-gradient(circle at 75% 75%, rgba(5, 150, 105, 0.03) 0%, transparent 50%);
   pointer-events: none;
@@ -70,17 +70,42 @@
   100% { transform: translateX(100%); }
 }
 
-/* Cards ultra modernos */
+/* Título elegante */
+.elegant-title {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(117, 117, 117, 0.1);
+  position: relative;
+  color: var(--neutral-900);
+  display: inline-block;
+}
+
+.elegant-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 25%;
+  width: 50%;
+  height: 3px;
+}
+
+/* Cards a pantalla completa */
 .ultra-modern-card {
   border-radius: 1.5rem;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   position: relative;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
 }
 
+/* Eliminar límite máximo de ancho para cards */
 .ultra-modern-card::before {
   content: '';
   position: absolute;
@@ -99,13 +124,15 @@
 
 /* Estados destacados de cards */
 .highlighted-card {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12) !important;
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.15) !important;
+  z-index: 10;
 }
 
 .sdlc-highlighted {
-  background: linear-gradient(135deg, var(--sdlc-light) 0%, rgba(255, 255, 255, 0.9) 100%);
+  background: linear-gradient(135deg, var(--sdlc-light) 0%, rgba(255, 255, 255, 0.95) 100%);
   border: 2px solid var(--sdlc-primary);
+  box-shadow: 0 25px 70px rgba(37, 99, 235, 0.2) !important;
 }
 
 .sdlc-highlighted::before {
@@ -114,8 +141,9 @@
 }
 
 .stlc-highlighted {
-  background: linear-gradient(135deg, var(--stlc-light) 0%, rgba(255, 255, 255, 0.9) 100%);
+  background: linear-gradient(135deg, var(--stlc-light) 0%, rgba(255, 255, 255, 0.95) 100%);
   border: 2px solid var(--stlc-primary);
+  box-shadow: 0 25px 70px rgba(5, 150, 105, 0.2) !important;
 }
 
 .stlc-highlighted::before {
@@ -153,45 +181,71 @@
 
 .icon-container-modern:hover {
   transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 极速飞艇开奖结果记录) !important;
 }
 
 /* Selector circular ultra moderno */
 .ultra-modern-selector-circle {
-  width: 140px;
-  height: 140px;
+  width: 180px;
+  height: 180px;
   border-radius: 50%;
   background: linear-gradient(135deg, #ffffff 0%, var(--neutral-50) 100%);
   border: 3px solid var(--neutral-200);
   cursor: pointer;
   transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  box-shadow: 
-    0 10px 40px rgba(0, 0, 0, 0.08),
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.12),
     0 0 0 0 rgba(37, 99, 235, 0.1);
   position: relative;
   overflow: hidden;
 }
 
 .ultra-modern-selector-circle:hover {
-  transform: scale(1.08);
-  box-shadow: 
-    0 15px 50px rgba(0, 0, 0, 0.12),
-    0 0 0 10px rgba(37, 99, 235, 0.05);
+  transform: scale(1.08) rotate(5deg);
+  box-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.15),
+    极速飞艇开奖结果记录 0 0 0 12px rgba(37, 99, 235, 0.05);
   border-color: var(--sdlc-primary);
 }
 
 .selector-core-modern {
   position: absolute;
-  width: 70%;
-  height: 70%;
+  width: 65%;
+  height: 65%;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--neutral-100) 0%, #ffffff 100%);
-  box-shadow: 
+  box-shadow:
     inset 0 4px 12px rgba(0, 0, 0, 0.05),
-    0 2px 8px rgba(0, 0, 0, 0.05);
+    0 2px 极速飞艇开奖结果记录 rgba(0, 0, 0, 0.05);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.selector-indicator {
+  text-align: center;
+  color: var(--neutral-700);
+}
+
+.selector-indicator i {
+  display: block;
+  margin: 0 auto 5px;
+  background: linear-gradient(135deg, var(--sdlc-gradient-start) 0%, var(--stlc-gradient-start) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.selector-indicator-text {
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .selector-rings {
@@ -233,10 +287,12 @@
     opacity: 0;
     transform: scale(0.8);
   }
+
   50% {
     opacity: 0.3;
     transform: scale(1);
   }
+
   100% {
     opacity: 0;
     transform: scale(1.2);
@@ -246,13 +302,13 @@
 .selector-arrow-ultra {
   width: 0;
   height: 0;
-  border-left: 20px solid transparent;
-  border-right: 20px solid transparent;
-  border-top: 30px solid var(--neutral-500);
+  border-left: 25px solid transparent;
+  border-right: 25px solid transparent;
+  border-top: 40px solid var(--neutral-500);
   transition: all 0.4s ease;
   position: relative;
   z-index: 3;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.15));
 }
 
 .selector-glow-modern {
@@ -262,7 +318,7 @@
   border-radius: 50%;
   background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, transparent 70%);
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity 极速飞艇开奖结果记录.4s ease;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -298,7 +354,7 @@
   position: absolute;
   top: 0;
   left: -100%;
-  width: 100%;
+  width: 极速飞艇开奖结果记录%;
   height: 100%;
   background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
   transition: left 0.6s ease;
@@ -326,7 +382,7 @@
 
 .stlc-selected {
   border-color: var(--stlc-primary) !important;
-  background: linear-gradient(135deg, var(--stlc-light) 0%, rgba(255, 255, 255, 0.9) 100%);
+  background: linear-gradient(135deg, var(--stlc-light) 0%, rgba(255, 极速飞艇开奖结果记录, 255, 0.9) 100%);
 }
 
 .phase-icon-container {
@@ -346,15 +402,16 @@
 
 /* Popover personalizado con posición dinámica */
 .popover-custom {
-  width: 350px;
+  width: 380px;
   max-width: 90vw;
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(20px);
   border: 2px solid var(--sdlc-primary);
-  border-radius: 1rem;
-  box-shadow: 0 20px 60px rgba(37, 99, 235, 0.25);
+  border-radius: 1.2rem;
+  box-shadow: 0 25px 65px rgba(37, 99, 235, 0.3);
   z-index: 1000;
   transform: translateY(-50%);
+  overflow: hidden;
 }
 
 .popover-arrow {
@@ -381,8 +438,19 @@
   border-right: 10px solid rgba(255, 255, 255, 0.98);
 }
 
+.popover-header {
+  background: linear-gradient(90deg, var(--sdlc-light) 0%, rgba(255, 255, 255, 0.9) 100%);
+  padding: 1rem 1.2rem;
+  border-bottom: 1px solid var(--neutral-200);
+}
+
+.popover-body {
+  padding: 1.2rem;
+}
+
 .connection-arrow {
   position: relative;
+  padding: 0.5rem 0;
 }
 
 .connection-arrow::before {
@@ -403,6 +471,7 @@
   border-left: 4px solid #fbbf24;
   position: relative;
   overflow: hidden;
+  padding: 1.2rem;
 }
 
 .use-case-container-modern::before {
@@ -412,41 +481,115 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 极速飞艇开奖结果记录%);
 }
 
-/* Tabla moderna */
-.modern-table {
+/* Contenedor de tabla a pantalla completa */
+.table-container-full {
+  background: linear-gradient(135deg, #ffffff 0%, var(--neutral-50) 100%);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--neutral-100);
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Tabla a pantalla completa */
+.modern-table-full {
   border-collapse: separate;
   border-spacing: 0;
+  border-radius: 1rem;
+  overflow: hidden;
+  width: 100%;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  table-layout: fixed;
 }
 
-.table-row-modern {
-  transition: all 0.3s ease;
-  border-radius: 0.5rem;
+.modern-table-full thead {
+  background: linear-gradient(135deg, var(--neutral-100) 0%, var(--neutral-50) 100%);
 }
 
-.table-row-modern:hover {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.02) 0%, rgba(5, 150, 105, 0.02) 100%) !important;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.modern-table td,
-.modern-table th {
-  border: none !important;
+.modern-table-full thead th {
+  padding: 1.2rem 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  border: none;
   vertical-align: middle;
-  position: relative;
+  text-align: center;
 }
 
-.modern-table tbody tr::before {
+.modern-table-full thead th:nth-child(2),
+.modern-table-full thead th:nth-child(4) {
+  text-align: left;
+}
+
+.modern-table-full tbody td {
+  padding: 1.2rem 1.5rem;
+  vertical-align: top;
+  border: none;
+  border-bottom: 1px solid var(--neutral-100);
+}
+
+.modern-table-full tbody td:nth-child(1),
+.modern-table-full tbody td:nth-child(3) {
+  text-align: center;
+  width: 20%;
+}
+
+.modern-table-full tbody td:nth-child(2),
+.modern-table-full tbody td:nth-child(4) {
+  text-align: left;
+  width: 30%;
+}
+
+.modern-table-full tbody tr {
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.modern-table-full tbody tr:hover {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.03) 0%, rgba(5, 150, 105, 0.03) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Estilo para filas pares e impares */
+.modern-table-full tbody tr:nth-child(even) {
+  background-color: var(--neutral-50);
+}
+
+.modern-table-full tbody tr:nth-child(even):hover {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(5, 150, 105, 0.05) 100%);
+}
+
+/* Mejora para las celdas de la tabla */
+.table-cell-content {
+  position: relative;
+  padding-left: 1rem;
+}
+
+.table-cell-content::before {
   content: '';
   position: absolute;
   left: 0;
-  bottom: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, var(--neutral-200) 20%, var(--neutral-200) 80%, transparent 100%);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 70%;
+  background: linear-gradient(to bottom, var(--sdlc-primary), var(--stlc-primary));
+  border-radius: 2px;
+  opacity: 0.7;
+}
+
+/* Estilo para la columna de actividades */
+.activity-cell {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);
+  border-left: 3px solid var(--neutral-200);
+  padding: 1rem;
+  border-radius: 0.5rem;
 }
 
 /* Transiciones globales */
@@ -504,6 +647,7 @@
     opacity: 0;
     transform: translateX(30px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -515,6 +659,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -530,53 +675,84 @@
   opacity: 0;
 }
 
-.phase-item-modern:nth-child(1) { animation-delay: 0.1s; }
-.phase-item-modern:nth-child(2) { animation-delay: 0.2s; }
-.phase-item-modern:nth-child(3) { animation-delay: 0.3s; }
-.phase-item-modern:nth-child(4) { animation-delay: 0.4s; }
-.phase-item-modern:nth-child(5) { animation-delay: 0.5s; }
-.phase-item-modern:nth-child(6) { animation-delay: 0.6s; }
-.phase-item-modern:nth-child(7) { animation-delay: 0.7s; }
+.phase-item-modern:nth-child(1) {
+  animation-delay: 0.1s;
+}
 
-/* Responsividad mejorada */
+.phase-item-modern:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.phase-item-modern:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.phase-item-modern:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.phase-item-modern:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+.phase-item-modern:nth-child(6) {
+  animation-delay: 0.6s;
+}
+
+.phase-item-modern:nth-child(7) {
+  animation-delay: 0.7s;
+}
+
+/* Ajustes responsivos */
 @media (max-width: 1200px) {
   .ultra-modern-selector-circle {
-    width: 120px;
-    height: 120px;
+    width: 160px;
+    height: 160px;
   }
-  
+
   .selector-arrow-ultra {
-    border-left: 16px solid transparent;
-    border-right: 16px solid transparent;
-    border-top: 24px solid;
+    border-left: 22px solid transparent;
+    border-right: 22px solid transparent;
+    border-top: 35px solid;
   }
   
-  .popover-custom {
-    width: 320px;
+  /* Ajustar columnas para tablets grandes */
+  .col-xl-5 {
+    flex: 0 0 45%;
+    max-width: 45%;
+  }
+  
+  .col-xl-2 {
+    flex: 0 0 10%;
+    max-width: 10%;
   }
 }
 
 @media (max-width: 992px) {
+  .ultra-modern-card {
+    max-width: 100%;
+  }
+
   .ultra-modern-selector-circle {
-    width: 100px;
-    height: 100px;
+    width: 140px;
+    height: 140px;
     margin: 30px auto;
   }
-  
+
   .selector-arrow-ultra {
-    border-left: 14px solid transparent;
-    border-right: 14px solid transparent;
-    border-top: 20px solid;
+    border-left: 18px solid transparent;
+    border-right: 18px solid transparent;
+    border-top: 30px solid;
   }
-  
+
   .header-gradient {
     border-radius: 0 0 2rem 2rem;
   }
-  
+
   .selector-text-modern {
     font-size: 0.65rem;
   }
-  
+
   .popover-custom {
     position: fixed !important;
     top: 50% !important;
@@ -585,9 +761,23 @@
     width: 90%;
     max-width: 400px;
   }
-  
+
   .popover-arrow {
     display: none;
+  }
+  
+  /* Stack en columnas para tablets */
+  .col-lg-5 {
+    flex: 0 0 100%;
+    max-width: 100%;
+    margin-bottom: 2rem;
+  }
+  
+  .col-lg-2 {
+    flex: 0 0 100%;
+    max-width: 100%;
+    order: 3;
+    margin-top: 2rem;
   }
 }
 
@@ -595,45 +785,63 @@
   .display-3 {
     font-size: 2.8rem;
   }
-  
+
   .ultra-modern-card {
     border-radius: 1rem;
   }
-  
+
   .phase-item-modern {
     padding: 1.25rem !important;
   }
-  
+
   .ultra-modern-selector-circle {
-    width: 90px;
-    height: 90px;
+    width: 120px;
+    height: 120px;
   }
-  
+
   .selector-arrow-ultra {
-    border-left: 12px solid transparent;
-    border-right: 12px solid transparent;
-    border-top: 18px solid;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 25px solid;
   }
-  
+
   .icon-container-modern {
     width: 50px;
     height: 50px;
   }
-  
+
   .selector-content i {
     font-size: 1.2rem;
   }
-  
+
   .selector-text-modern {
     display: none;
   }
-  
-  .modern-table {
+
+  .modern-table-full {
     font-size: 0.9rem;
   }
-  
+
+  .modern-table-full thead th,
+  .modern-table-full tbody td {
+    padding: 0.8rem 1rem;
+  }
+
   .phase-item-modern:hover {
     transform: translateY(-2px);
+  }
+  
+  /* Ajustar tabla para móviles */
+  .modern-table-full thead th:nth-child(2),
+  .modern-table-full thead th:nth-child(4),
+  .modern-table-full tbody td:nth-child(2),
+  .modern-table-full tbody td:nth-child(4) {
+    display: none;
+  }
+  
+  .modern-table-full thead th:nth-child(1),
+  .modern-table-full thead th:nth-child(3) {
+    width: 50%;
   }
 }
 
@@ -642,18 +850,42 @@
     border-radius: 0 0 1.5rem 1.5rem;
     padding: 2rem 1rem !important;
   }
-  
+
   .ultra-modern-selector-circle {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
   }
-  
-  .container-xl {
+
+  .selector-arrow-ultra {
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 20px solid;
+  }
+
+  .selector-indicator-text {
+    font-size: 0.6rem;
+  }
+
+  .container-fluid {
     padding-left: 1rem;
     padding-right: 1rem;
   }
-  
+
   .display-3 {
     font-size: 2.2rem;
+  }
+
+  .modern-table-full {
+    font-size: 0.8rem;
+  }
+
+  .modern-table-full thead th,
+  .modern-table-full tbody td {
+    padding: 0.6rem 0.8rem;
+  }
+  
+  .table-container-full {
+    padding: 1rem;
+    border-radius: 1rem;
   }
 }

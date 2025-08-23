@@ -1,149 +1,22 @@
 // App.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import '../styles/App.css';
-
-// Definición de tipos TypeScript
-type Phase = {
-  title: string;
-  description: string;
-  icon: string;
-  relatedPhase?: string;
-  useCase?: string;
-};
-
-type Methodology = {
-  name: string;
-  color: string;
-  lightColor: string;
-  phases: Phase[];
-  definition: string;
-};
+import { sdlc, stlc } from '../js/datos';
 
 const App: React.FC = () => {
   // Estados para controlar la rotación del selector
   const [selectedMethodology, setSelectedMethodology] = useState<'sdlc' | 'stlc' | null>(null);
   const [selectedPhase, setSelectedPhase] = useState<number | null>(null);
-  const [popoverPosition, setPopoverPosition] = useState<{top: number, left: number} | null>(null);
-  
+  const [popoverPosition, setPopoverPosition] = useState<{ top: number, left: number } | null>(null);
+
   // Referencias para los elementos de fase
   const phaseRefs = useRef<(HTMLDivElement | null)[]>([]);
-  
-  // Datos para SDLC
-  const sdlc: Methodology = {
-    name: "SDLC",
-    color: "#2563eb",
-    lightColor: "#eff6ff",
-    definition: "Ciclo de Vida de Desarrollo de Software: Proceso sistemático para planificar, crear, probar y desplegar software de manera eficiente y controlada.",
-    phases: [
-      {
-        title: "Planificación",
-        description: "Identificar requerimientos del sistema de reservas, definir alcance, recursos y cronograma. Para el hotel, se determinan necesidades como reservas online, gestión de habitaciones y reporting.",
-        icon: "bi bi-calendar-check",
-        relatedPhase: "Análisis de requerimientos de pruebas",
-        useCase: "Durante la planificación del SDLC, el equipo de pruebas comienza a analizar qué aspectos del sistema de reservas requerirán verificación, como la disponibilidad de habitaciones en tiempo real y la integración con pasarelas de pago."
-      },
-      {
-        title: "Análisis de requisitos",
-        description: "Realizar entrevistas con personal del hotel, definir historias de usuario (ej: 'Como cliente quiero reservar una habitación online'), casos de uso y observación de procesos actuales.",
-        icon: "bi bi-clipboard-data",
-        relatedPhase: "Planificación de pruebas",
-        useCase: "Con los requisitos definidos, el equipo STLC planifica cómo probar cada funcionalidad: tipos de pruebas necesarias, recursos requeridos y cronograma para validar el sistema de reservas."
-      },
-      {
-        title: "Diseño del sistema",
-        description: "Definir arquitectura del sistema de reservas, interfaces de usuario, diseño de base de datos para habitaciones, clientes y reservas, y APIs de integración con sistemas de pago.",
-        icon: "bi bi-diagram-3",
-        relatedPhase: "Diseño de casos de prueba",
-        useCase: "A partir de los diseños del sistema, el equipo de pruebas diseña casos específicos para validar cada componente: flujos de reserva, cancelaciones, gestión de habitaciones y reportes."
-      },
-      {
-        title: "Desarrollo",
-        description: "Codificación del sistema de reservas: frontend para la web del hotel, backend con lógica de negocio, integración con pasarela de pagos y base de datos.",
-        icon: "bi bi-code-slash",
-        relatedPhase: "Configuración del entorno",
-        useCase: "Mientras los desarrolladores codifican, el equipo de pruebas prepara los entornos necesarios para evaluar el sistema: servidores, bases de datos de prueba y herramientas de automatización."
-      },
-      {
-        title: "Pruebas",
-        description: "Validación funcional (reservas, cancelaciones, consultas) y no funcional (rendimiento con múltiples usuarios simultáneos, seguridad de datos de clientes).",
-        icon: "bi bi-bug-fill",
-        relatedPhase: "Ejecución de pruebas",
-        useCase: "En esta fase ambos ciclos se sincronizan: los desarrolladores corrigen errores reportados por el equipo de pruebas, quien ejecuta los casos diseñados para el sistema de reservas."
-      },
-      {
-        title: "Implementación/Despliegue",
-        description: "Paso a producción: despliegue en servidores del hotel, migración de datos existentes, capacitación al personal y lanzamiento público del sistema.",
-        icon: "bi bi-rocket-takeoff",
-        relatedPhase: "Cierre de pruebas",
-        useCase: "El equipo de pruebas realiza las verificaciones finales en el entorno de producción y genera el reporte de cierre, confirmando que el sistema de reservas cumple con los criterios de calidad establecidos."
-      },
-      {
-        title: "Mantenimiento",
-        description: "Corrección de errores reportados (ej: problemas con tipos de habitación), implementación de mejoras (nuevos métodos de pago) y actualizaciones periódicas.",
-        icon: "bi bi-tools",
-        relatedPhase: "Pruebas de regresión",
-        useCase: "Para cada actualización del sistema, el equipo de pruebas ejecuta pruebas de regresión para asegurar que los cambios no afecten funcionalidades existentes del sistema de reservas."
-      }
-    ]
-  };
-
-  // Datos para STLC
-  const stlc: Methodology = {
-    name: "STLC",
-    color: "#059669",
-    lightColor: "#ecfdf5",
-    definition: "Ciclo de Vida de Pruebas de Software: Proceso sistemático para verificar y validar que el software cumple con los requisitos establecidos y estándares de calidad.",
-    phases: [
-      {
-        title: "Análisis de requerimientos de pruebas",
-        description: "Determinar qué se va a probar en el sistema de reservas: funcionalidades críticas (reservas, cancelaciones), requisitos no funcionales (tiempos de respuesta, seguridad) y compatibilidad con dispositivos.",
-        icon: "bi bi-search",
-        relatedPhase: "Planificación SDLC",
-        useCase: "El equipo de pruebas analiza los requisitos iniciales del sistema de reservas para identificar qué aspectos requieren verificación y validación."
-      },
-      {
-        title: "Planificación de pruebas",
-        description: "Seleccionar estrategia de pruebas (manual/automática), definir criterios de entrada/salida para cada fase, asignar recursos y elaborar cronograma para las pruebas del sistema de reservas.",
-        icon: "bi bi-kanban",
-        relatedPhase: "Análisis de requisitos SDLC",
-        useCase: "Con base en los requisitos documentados, el equipo STLC planifica las actividades de prueba para el sistema de reservas, coordinándose con el cronograma de desarrollo."
-      },
-      {
-        title: "Diseño de casos de prueba",
-        description: "Preparar entradas (datos de reserva), salidas esperadas (confirmación), escenarios de prueba (reserva exitosa, habitación no disponible) y datos de prueba para todas las funcionalidades.",
-        icon: "bi bi-pencil-square",
-        relatedPhase: "Diseño del sistema SDLC",
-        useCase: "A partir de los diseños técnicos, se crean casos de prueba detallados para validar cada componente del sistema de reservas."
-      },
-      {
-        title: "Configuración del entorno",
-        description: "Preparar servidores de prueba, bases de datos con información de habitaciones y reservas, herramientas de testing y configurar entorno similar a producción para validar el sistema.",
-        icon: "bi bi-gear-fill",
-        relatedPhase: "Desarrollo SDLC",
-        useCase: "Mientras los desarrolladores codifican, el equipo de pruebas prepara los ambientes necesarios para evaluar el sistema de reservas."
-      },
-      {
-        title: "Ejecución de pruebas",
-        description: "Ejecutar casos de prueba para el sistema de reservas: registrar resultados, reportar defectos (ej: error al aplicar descuentos) y verificar correcciones.",
-        icon: "bi bi-play-circle-fill",
-        relatedPhase: "Pruebas SDLC",
-        useCase: "Se ejecutan las pruebas planificadas y se reportan los defectos encontrados en el sistema de reservas para su corrección."
-      },
-      {
-        title: "Cierre de pruebas",
-        description: "Evaluar métricas (cobertura, defectos encontrados/corregidos), elaborar reporte final de pruebas y obtener aprobación para pasar a producción el sistema de reservas.",
-        icon: "bi bi-flag-fill",
-        relatedPhase: "Implementación SDLC",
-        useCase: "Al finalizar las pruebas, se genera el reporte final que avala la calidad del sistema de reservas para su despliegue a producción."
-      }
-    ]
-  };
 
   // Función para rotar el selector
   const rotateSelector = () => {
     setSelectedPhase(null);
     setPopoverPosition(null);
-    
+
     if (selectedMethodology === null) {
       setSelectedMethodology('sdlc');
     } else if (selectedMethodology === 'sdlc') {
@@ -172,7 +45,7 @@ const App: React.FC = () => {
         if (phaseRefs.current[index]) {
           const rect = phaseRefs.current[index]!.getBoundingClientRect();
           const containerRect = document.querySelector('.container-xl')!.getBoundingClientRect();
-          
+
           setPopoverPosition({
             top: rect.top - containerRect.top + rect.height / 2,
             left: rect.right - containerRect.left + 20
@@ -194,7 +67,7 @@ const App: React.FC = () => {
       if (selectedPhase !== null && selectedMethodology === 'sdlc' && phaseRefs.current[selectedPhase]) {
         const rect = phaseRefs.current[selectedPhase]!.getBoundingClientRect();
         const containerRect = document.querySelector('.container-xl')!.getBoundingClientRect();
-        
+
         setPopoverPosition({
           top: rect.top - containerRect.top + rect.height / 2,
           left: rect.right - containerRect.left + 20
@@ -215,19 +88,19 @@ const App: React.FC = () => {
     <div className="container-fluid py-4 modern-bg">
       <header className="text-center mb-5 py-5 header-gradient">
         <div className="container">
-          <h1 className="text-white display-3 fw-bold mb-3">
+          <h1 className="display-3 fw-bold mb-3 elegant-title">
             <i className="bi bi-diagram-3-fill me-3"></i>
-            Organizador SDLC & STLC
+            SDLC & STLC Organizer
           </h1>
-          <p className="lead text-white opacity-90 mb-0">Sistema de Reservas para Hotel - Gestión de Procesos</p>
+          <p className="lead opacity-90 mb-0">Sistema de Reservas para Hotel - Gestión de Procesos</p>
         </div>
       </header>
 
-      <div className="container-xl position-relative">
+      <div className="container-fluid position-relative px-4">
         <div className="row justify-content-center align-items-start mb-5">
-          {/* Tarjeta SDLC */}
-          <div className="col-lg-4 col-md-10 mb-4">
-            <div 
+          {/* Tarjeta SDLC - Ocupa todo el ancho disponible */}
+          <div className="col-lg-5 col-xl-5 mb-4">
+            <div
               className={`card ultra-modern-card h-100 border-0 shadow-lg transition-all ${selectedMethodology === 'sdlc' ? 'highlighted-card sdlc-highlighted' : ''}`}
             >
               <div className="card-header bg-transparent border-0 py-4">
@@ -241,7 +114,7 @@ const App: React.FC = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="card-body pt-0">
                 {selectedMethodology !== 'sdlc' ? (
                   <div className="definition-container">
@@ -266,7 +139,7 @@ const App: React.FC = () => {
                     </h6>
                     <div className="phase-list">
                       {sdlc.phases.map((phase, index) => (
-                        <div 
+                        <div
                           key={index}
                           ref={el => phaseRefs.current[index] = el}
                           className={`phase-item-modern mb-3 p-3 rounded-3 hover-effect cursor-pointer ${selectedPhase === index ? 'phase-selected-modern sdlc-selected' : ''}`}
@@ -292,45 +165,64 @@ const App: React.FC = () => {
           </div>
 
           {/* Selector circular central mejorado */}
-          <div className="col-lg-2 col-md-12 text-center d-flex flex-column justify-content-center align-items-center my-4">
-            <div 
+          <div className="col-lg-2 col-xl-2 text-center d-flex flex-column justify-content-center align-items-center my-4">
+            <div
               className="ultra-modern-selector-circle mx-auto d-flex align-items-center justify-content-center position-relative"
               onClick={rotateSelector}
               style={{ transform: `rotate(${getRotation()}deg)` }}
             >
-              <div className="selector-core-modern"></div>
+              <div className="selector-core-modern">
+                <div className="selector-indicator">
+                  {selectedMethodology === 'sdlc' ? (
+                    <>
+                      <i className="bi bi-code-slash text-white fs-5"></i>
+                      <span className="selector-indicator-text">SDLC</span>
+                    </>
+                  ) : selectedMethodology === 'stlc' ? (
+                    <>
+                      <i className="bi bi-shield-check text-white fs-5"></i>
+                      <span className="selector-indicator-text">STLC</span>
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-question-circle text-white fs-5"></i>
+                      <span className="selector-indicator-text">Seleccionar</span>
+                    </>
+                  )}
+                </div>
+              </div>
               <div className="selector-rings">
                 <div className="selector-ring ring-1"></div>
                 <div className="selector-ring ring-2"></div>
               </div>
-              <div 
-                className="selector-arrow-ultra" 
-                style={{ 
-                  borderTopColor: selectedMethodology === 'sdlc' ? sdlc.color : 
-                                  selectedMethodology === 'stlc' ? stlc.color : '#6b7280'
+              <div
+                className="selector-arrow-ultra"
+                style={{
+                  borderTopColor: selectedMethodology === 'sdlc' ? sdlc.color :
+                    selectedMethodology === 'stlc' ? stlc.color : '#6b7280'
                 }}
               ></div>
               <div className="selector-glow-modern"></div>
-              
+
               <div className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
                 <div className="text-center selector-content">
                   <i className="bi bi-arrow-repeat text-muted fs-4 mb-1"></i>
-                  <div className="selector-text-modern d-block small fw-medium text-muted">Click</div>
+                  <div className="selector-text-modern d-block small fw-medium text-muted">Click para cambiar</div>
                 </div>
               </div>
             </div>
-            
+
             <div className="mt-4">
               <span className={`badge rounded-pill px-3 py-2 ${selectedMethodology ? 'bg-primary text-white' : 'bg-light text-dark'}`}>
-                {selectedMethodology === null ? "Selecciona Vista" : 
-                 selectedMethodology === 'sdlc' ? "Vista SDLC" : "Vista STLC"}
+                {selectedMethodology === null ? "Selecciona Vista" :
+                  selectedMethodology === 'sdlc' ? "Vista SDLC Activa" : "Vista STLC Activa"}
               </span>
             </div>
           </div>
 
-          {/* Tarjeta STLC */}
-          <div className="col-lg-4 col-md-10 mb-4">
-            <div 
+          {/* Tarjeta STLC - Ocupa todo el ancho disponible */}
+          <div className="col-lg-5 col-xl-5 mb-4">
+            <div
               className={`card ultra-modern-card h-100 border-0 shadow-lg transition-all ${selectedMethodology === 'stlc' ? 'highlighted-card stlc-highlighted' : ''}`}
             >
               <div className="card-header bg-transparent border-0 py-4">
@@ -344,7 +236,7 @@ const App: React.FC = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="card-body pt-0">
                 {selectedMethodology !== 'stlc' ? (
                   <div className="definition-container">
@@ -369,8 +261,8 @@ const App: React.FC = () => {
                     </h6>
                     <div className="phase-list">
                       {stlc.phases.map((phase, index) => (
-                        <div 
-                          key={index} 
+                        <div
+                          key={index}
                           className={`phase-item-modern mb-3 p-3 rounded-3 hover-effect cursor-pointer ${selectedPhase === index ? 'phase-selected-modern stlc-selected' : ''}`}
                           onClick={() => handlePhaseClick(index)}
                         >
@@ -395,7 +287,7 @@ const App: React.FC = () => {
 
         {/* Popover para SDLC con posición dinámica */}
         {selectedPhase !== null && selectedMethodology === 'sdlc' && popoverPosition && (
-          <div 
+          <div
             className="popover-custom bs-popover-end show animate-fade-in"
             style={{
               position: 'absolute',
@@ -410,10 +302,10 @@ const App: React.FC = () => {
                 <i className="bi bi-link-45deg me-2"></i>
                 Relación SDLC-STLC
               </h6>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="btn-close btn-close-sm"
-                onClick={() => {setSelectedPhase(null); setPopoverPosition(null);}}
+                onClick={() => { setSelectedPhase(null); setPopoverPosition(null); }}
                 aria-label="Close"
               ></button>
             </div>
@@ -454,58 +346,61 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {/* Tabla comparativa mejorada */}
+        {/* Tabla comparativa mejorada - Ocupa todo el ancho */}
         <div className="row mt-5 pt-4">
           <div className="col-12">
-            <div className="card ultra-modern-card border-0 shadow-lg">
-              <div className="card-header bg-transparent border-0 py-4">
-                <div className="text-center">
-                  <h2 className="mb-2 text-dark fw-bold">
-                    <i className="bi bi-table me-3"></i>
-                    Comparación Detallada SDLC vs STLC
-                  </h2>
-                  <p className="text-muted mb-0 fs-6">Sistema de Reservas de Hotel - Análisis Comparativo</p>
-                </div>
+            <div className="table-container-full">
+              <div className="text-center mb-4">
+                <h2 className="mb-2 text-dark fw-bold elegant-title">
+                  <i className="bi bi-table me-3"></i>
+                  Comparación Detallada SDLC vs STLC
+                </h2>
+                <p className="text-muted mb-0 fs-6">Sistema de Reservas de Hotel - Análisis Comparativo</p>
               </div>
-              <div className="card-body p-4">
-                <div className="table-responsive">
-                  <table className="table table-hover align-middle modern-table">
-                    <thead>
-                      <tr className="table-light">
-                        <th scope="col" className="sdlc-color fw-bold border-0 py-3">
-                          <i className="bi bi-code-slash me-2"></i>Fase SDLC
-                        </th>
-                        <th scope="col" className="sdlc-color fw-bold border-0 py-3">Actividades Desarrollo</th>
-                        <th scope="col" className="stlc-color fw-bold border-0 py-3">
-                          <i className="bi bi-shield-check me-2"></i>Fase STLC
-                        </th>
-                        <th scope="col" className="stlc-color fw-bold border-0 py-3">Actividades Pruebas</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sdlc.phases.map((phase, index) => (
-                        <tr key={index} className="hover-effect table-row-modern">
-                          <td className="fw-semibold border-0 py-4">
-                            <div className="d-flex align-items-center">
-                              <i className={`${phase.icon} me-2 sdlc-color`}></i>
-                              {phase.title}
-                            </div>
-                          </td>
-                          <td className="border-0 py-4 text-muted">{phase.description}</td>
-                          <td className="fw-semibold border-0 py-4">
-                            <div className="d-flex align-items-center">
-                              <i className={`${stlc.phases[index]?.icon || 'bi bi-circle'} me-2 stlc-color`}></i>
-                              {stlc.phases[index]?.title || 'Pruebas de Regresión'}
-                            </div>
-                          </td>
-                          <td className="border-0 py-4 text-muted">
+
+              <div className="table-responsive">
+                <table className="table modern-table-full">
+                  <thead>
+                    <tr>
+                      <th scope="col" className="sdlc-color fw-bold py-3 text-center">
+                        <i className="bi bi-code-slash me-2"></i>Fase SDLC
+                      </th>
+                      <th scope="col" className="sdlc-color fw-bold py-3">Actividades Desarrollo</th>
+                      <th scope="col" className="stlc-color fw-bold py-3 text-center">
+                        <i className="bi bi-shield-check me-2"></i>Fase STLC
+                      </th>
+                      <th scope="col" className="stlc-color fw-bold py-3">Actividades Pruebas</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sdlc.phases.map((phase, index) => (
+                      <tr key={index} className="table-row-modern">
+                        <td className="fw-semibold py-4 text-center">
+                          <div className="d-flex align-items-center justify-content-center">
+                            <i className={`${phase.icon} me-2 sdlc-color`}></i>
+                            <span>{phase.title}</span>
+                          </div>
+                        </td>
+                        <td className="py-4 text-muted activity-cell">
+                          <div className="table-cell-content">
+                            {phase.description}
+                          </div>
+                        </td>
+                        <td className="fw-semibold py-4 text-center">
+                          <div className="d-flex align-items-center justify-content-center">
+                            <i className={`${stlc.phases[index]?.icon || 'bi bi-circle'} me-2 stlc-color`}></i>
+                            <span>{stlc.phases[index]?.title || 'Pruebas de Regresión'}</span>
+                          </div>
+                        </td>
+                        <td className="py-4 text-muted activity-cell">
+                          <div className="table-cell-content">
                             {stlc.phases[index]?.description || 'Pruebas de regresión para asegurar que cambios no rompan funcionalidad existente del sistema de reservas.'}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
