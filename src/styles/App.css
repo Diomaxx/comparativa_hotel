@@ -181,7 +181,7 @@
 
 .icon-container-modern:hover {
   transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 12px 30px rgba(37, 99, 235, 极速飞艇开奖结果记录) !important;
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35) !important;
 }
 
 /* Selector circular ultra moderno */
@@ -192,7 +192,7 @@
   background: linear-gradient(135deg, #ffffff 0%, var(--neutral-50) 100%);
   border: 3px solid var(--neutral-200);
   cursor: pointer;
-  transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transition: box-shadow 0.35s ease, border-color 0.35s ease, transform 0.2s ease;
   box-shadow:
     0 20px 50px rgba(0, 0, 0, 0.12),
     0 0 0 0 rgba(37, 99, 235, 0.1);
@@ -201,10 +201,10 @@
 }
 
 .ultra-modern-selector-circle:hover {
-  transform: scale(1.08) rotate(5deg);
+  transform: scale(1.04);
   box-shadow:
     0 25px 60px rgba(0, 0, 0, 0.15),
-    极速飞艇开奖结果记录 0 0 0 12px rgba(37, 99, 235, 0.05);
+    0 0 0 12px rgba(37, 99, 235, 0.05);
   border-color: var(--sdlc-primary);
 }
 
@@ -216,7 +216,7 @@
   background: linear-gradient(135deg, var(--neutral-100) 0%, #ffffff 100%);
   box-shadow:
     inset 0 4px 12px rgba(0, 0, 0, 0.05),
-    0 2px 极速飞艇开奖结果记录 rgba(0, 0, 0, 0.05);
+    0 2px 6px rgba(0, 0, 0, 0.05);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -247,6 +247,92 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
+
+/* Inner content stays centered and upright */
+.ultra-modern-selector-circle .selector-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Colored ring and glow depending on mode */
+.ultra-modern-selector-circle[data-mode="sdlc"] {
+  border-color: var(--sdlc-primary);
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.12),
+    0 0 0 14px rgba(37, 99, 235, 0.06);
+}
+
+.ultra-modern-selector-circle[data-mode="stlc"] {
+  border-color: var(--stlc-primary);
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.12),
+    0 0 0 14px rgba(5, 150, 105, 0.06);
+}
+
+.ultra-modern-selector-circle[data-mode="neutral"] {
+  border-color: var(--neutral-300);
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.12),
+    0 0 0 14px rgba(107, 114, 128, 0.06);
+}
+
+/* Fixed labels around the circle (do not rotate) */
+.selector-labels {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.selector-label {
+  position: absolute;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--neutral-600);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--neutral-200);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.label-sdlc { left: -10px; top: 50%; transform: translate(-100%, -50%); }
+.label-neutral { left: 50%; bottom: -6px; transform: translate(-50%, 100%); }
+.label-stlc { right: -10px; top: 50%; transform: translate(100%, -50%); }
+
+/* Highlight active side using subtle tick markers */
+/* Removed tick markers */
+
+/* Rotating markers that align to selection while text stays static */
+/* Elegant rotating arc and needle (aesthetic indicator) */
+.selector-arc {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 450ms cubic-bezier(0.4, 0, 0.2, 1);
+  background: conic-gradient(
+    from 0deg,
+    rgba(0,0,0,0) 0deg 40deg,
+    var(--indicator-color, var(--neutral-500)) 40deg 140deg,
+    rgba(0,0,0,0) 140deg 360deg
+  );
+  filter: none;
+  pointer-events: none;
+}
+
+/* Aguja eliminada */
+
+/* Color binding by mode */
+.ultra-modern-selector-circle[data-mode="sdlc"] { --indicator-color: var(--sdlc-primary); }
+.ultra-modern-selector-circle[data-mode="stlc"] { --indicator-color: var(--stlc-primary); }
+.ultra-modern-selector-circle[data-mode="neutral"] { --indicator-color: var(--neutral-500); }
 
 .selector-rings {
   position: absolute;
@@ -318,7 +404,7 @@
   border-radius: 50%;
   background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, transparent 70%);
   opacity: 0;
-  transition: opacity 极速飞艇开奖结果记录.4s ease;
+  transition: opacity 0.4s ease;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -354,7 +440,7 @@
   position: absolute;
   top: 0;
   left: -100%;
-  width: 极速飞艇开奖结果记录%;
+  width: 100%;
   height: 100%;
   background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
   transition: left 0.6s ease;
@@ -382,7 +468,7 @@
 
 .stlc-selected {
   border-color: var(--stlc-primary) !important;
-  background: linear-gradient(135deg, var(--stlc-light) 0%, rgba(255, 极速飞艇开奖结果记录, 255, 0.9) 100%);
+  background: linear-gradient(135deg, var(--stlc-light) 0%, rgba(255, 255, 255, 0.9) 100%);
 }
 
 .phase-icon-container {
@@ -481,7 +567,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 极速飞艇开奖结果记录%);
+  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
 }
 
 /* Contenedor de tabla a pantalla completa */

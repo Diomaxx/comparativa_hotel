@@ -26,10 +26,14 @@ const App: React.FC = () => {
     }
   };
 
-  // Calcular rotación del selector
+  // Calcular rotación del indicador (arco)
   const getRotation = () => {
-    if (selectedMethodology === 'sdlc') return 0;
-    if (selectedMethodology === 'stlc') return 180;
+    // Posiciones deseadas:
+    // - Neutro: abajo (90°)
+    // - SDLC: izquierda (180°)
+    // - STLC: derecha (0°)
+    if (selectedMethodology === 'sdlc') return 180;
+    if (selectedMethodology === 'stlc') return 0;
     return 90;
   };
 
@@ -141,7 +145,7 @@ const App: React.FC = () => {
                       {sdlc.phases.map((phase, index) => (
                         <div
                           key={index}
-                          ref={el => phaseRefs.current[index] = el}
+                          ref={(el) => { phaseRefs.current[index] = el; }}
                           className={`phase-item-modern mb-3 p-3 rounded-3 hover-effect cursor-pointer ${selectedPhase === index ? 'phase-selected-modern sdlc-selected' : ''}`}
                           onClick={() => handlePhaseClick(index)}
                         >
@@ -169,7 +173,7 @@ const App: React.FC = () => {
             <div
               className="ultra-modern-selector-circle mx-auto d-flex align-items-center justify-content-center position-relative"
               onClick={rotateSelector}
-              style={{ transform: `rotate(${getRotation()}deg)` }}
+              data-mode={selectedMethodology ?? 'neutral'}
             >
               <div className="selector-core-modern">
                 <div className="selector-indicator">
@@ -195,6 +199,13 @@ const App: React.FC = () => {
                 <div className="selector-ring ring-1"></div>
                 <div className="selector-ring ring-2"></div>
               </div>
+
+              <div
+                className="selector-arc"
+                aria-hidden="true"
+                style={{ transform: `translate(-50%, -50%) rotate(${getRotation()}deg)` }}
+              ></div>
+              {/* Aguja eliminada a petición: solo usamos el degradado (arco) */}
               <div
                 className="selector-arrow-ultra"
                 style={{
@@ -209,6 +220,12 @@ const App: React.FC = () => {
                   <i className="bi bi-arrow-repeat text-muted fs-4 mb-1"></i>
                   <div className="selector-text-modern d-block small fw-medium text-muted">Click para cambiar</div>
                 </div>
+              </div>
+
+              <div className="selector-labels" aria-hidden="true">
+                <span className="selector-label label-sdlc">SDLC</span>
+                <span className="selector-label label-neutral">Seleccionar</span>
+                <span className="selector-label label-stlc">STLC</span>
               </div>
             </div>
 
