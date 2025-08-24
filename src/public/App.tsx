@@ -68,7 +68,7 @@ const App: React.FC = () => {
         setPopoverPosition(null);
       } else {
         setSelectedPhase(index);
-        
+
         // Usar setTimeout para asegurar que el DOM esté actualizado
         setTimeout(() => {
           const position = calculatePopoverPosition(index);
@@ -120,7 +120,7 @@ const App: React.FC = () => {
     if (popoverPosition && popoverRef.current && containerRef.current) {
       const popover = popoverRef.current;
       const container = containerRef.current;
-      
+
       // Esperar a que el popover se renderice
       setTimeout(() => {
         const popoverRect = popover.getBoundingClientRect();
@@ -158,13 +158,23 @@ const App: React.FC = () => {
 
   return (
     <div className="container-fluid py-4 modern-bg">
-      <header className="text-center mb-5 py-5 header-gradient">
+      <header className="text-center header-gradient">
         <div className="container">
-          <h1 className="display-3 fw-bold mb-3 elegant-title">
-            <i className="bi bi-diagram-3-fill me-3"></i>
-            SDLC & STLC Organizer
-          </h1>
-          <p className="lead opacity-90 mb-0">Sistema de Reservas para Hotel - Gestión de Procesos</p>
+          <div className="title-container">
+            <h1 className="elegant-main-title">
+              <span className="title-icon-wrapper">
+                <i className="bi bi-diagram-3-fill"></i>
+              </span>
+              <span className="title-text">
+                <span className="sdlc-text">SDLC</span>
+                <span className="ampersand">&</span>
+                <span className="stlc-text">STLC</span>
+                <span className="organizer-text">Organizer</span>
+              </span>
+            </h1>
+            <div className="title-divider"></div>
+            <p className="lead subtitle-text">Sistema de Reservas para Hotel - Gestión de Procesos</p>
+          </div>
         </div>
       </header>
 
@@ -433,9 +443,10 @@ const App: React.FC = () => {
         )}
 
         {/* Tabla comparativa mejorada - Ocupa todo el ancho */}
+        {/* Tabla comparativa mejorada - Ocupa todo el ancho */}
         <div className="row mt-5 pt-4">
           <div className="col-12">
-            <div className="table-container-full">
+            <div className="table-container-modern">
               <div className="text-center mb-4">
                 <h2 className="mb-2 text-dark fw-bold elegant-title">
                   <i className="bi bi-table me-3"></i>
@@ -444,42 +455,54 @@ const App: React.FC = () => {
                 <p className="text-muted mb-0 fs-6">Sistema de Reservas de Hotel - Análisis Comparativo</p>
               </div>
 
-              <div className="table-responsive">
-                <table className="table modern-table-full">
+              <div className="table-responsive-lg">
+                <table className="table modern-comparison-table">
                   <thead>
-                    <tr>
-                      <th scope="col" className="sdlc-color fw-bold py-3 text-center">
-                        <i className="bi bi-code-slash me-2"></i>Fase SDLC
+                    <tr className="table-header-row">
+                      <th scope="col" className="sdlc-header fw-bold text-center">
+                        <div className="header-content">
+                          <i className="bi bi-code-slash me-2"></i>Fase SDLC
+                        </div>
                       </th>
-                      <th scope="col" className="sdlc-color fw-bold py-3">Actividades Desarrollo</th>
-                      <th scope="col" className="stlc-color fw-bold py-3 text-center">
-                        <i className="bi bi-shield-check me-2"></i>Fase STLC
+                      <th scope="col" className="sdlc-header fw-bold">
+                        <div className="header-content">
+                          Actividades Desarrollo
+                        </div>
                       </th>
-                      <th scope="col" className="stlc-color fw-bold py-3">Actividades Pruebas</th>
+                      <th scope="col" className="stlc-header fw-bold text-center">
+                        <div className="header-content">
+                          <i className="bi bi-shield-check me-2"></i>Fase STLC
+                        </div>
+                      </th>
+                      <th scope="col" className="stlc-header fw-bold">
+                        <div className="header-content">
+                          Actividades Pruebas
+                        </div>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {sdlc.phases.map((phase, index) => (
-                      <tr key={index} className="table-row-modern">
-                        <td className="fw-semibold py-4 text-center">
-                          <div className="d-flex align-items-center justify-content-center">
-                            <i className={`${phase.icon} me-2 sdlc-color`}></i>
+                      <tr key={index} className="comparison-row">
+                        <td className="phase-title-cell sdlc-phase text-center">
+                          <div className="phase-content">
+                            <i className={`${phase.icon} me-2`}></i>
                             <span>{phase.title}</span>
                           </div>
                         </td>
-                        <td className="py-4 text-muted activity-cell">
-                          <div className="table-cell-content">
+                        <td className="activity-desc sdlc-activity">
+                          <div className="activity-content">
                             {phase.description}
                           </div>
                         </td>
-                        <td className="fw-semibold py-4 text-center">
-                          <div className="d-flex align-items-center justify-content-center">
-                            <i className={`${stlc.phases[index]?.icon || 'bi bi-circle'} me-2 stlc-color`}></i>
+                        <td className="phase-title-cell stlc-phase text-center">
+                          <div className="phase-content">
+                            <i className={`${stlc.phases[index]?.icon || 'bi bi-circle'} me-2`}></i>
                             <span>{stlc.phases[index]?.title || 'Pruebas de Regresión'}</span>
                           </div>
                         </td>
-                        <td className="py-4 text-muted activity-cell">
-                          <div className="table-cell-content">
+                        <td className="activity-desc stlc-activity">
+                          <div className="activity-content">
                             {stlc.phases[index]?.description || 'Pruebas de regresión para asegurar que cambios no rompan funcionalidad existente del sistema de reservas.'}
                           </div>
                         </td>
@@ -508,3 +531,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+
