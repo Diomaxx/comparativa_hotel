@@ -66,8 +66,13 @@
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* Título elegante */
@@ -299,14 +304,24 @@
   border-radius: 6px;
 }
 
-.label-sdlc { left: -10px; top: 50%; transform: translate(-100%, -50%); }
-.label-neutral { left: 50%; bottom: -6px; transform: translate(-50%, 100%); }
-.label-stlc { right: -10px; top: 50%; transform: translate(100%, -50%); }
+.label-sdlc {
+  left: -10px;
+  top: 50%;
+  transform: translate(-100%, -50%);
+}
 
-/* Highlight active side using subtle tick markers */
-/* Removed tick markers */
+.label-neutral {
+  left: 50%;
+  bottom: -6px;
+  transform: translate(-50%, 100%);
+}
 
-/* Rotating markers that align to selection while text stays static */
+.label-stlc {
+  right: -10px;
+  top: 50%;
+  transform: translate(100%, -50%);
+}
+
 /* Elegant rotating arc and needle (aesthetic indicator) */
 .selector-arc {
   position: absolute;
@@ -317,22 +332,26 @@
   border-radius: 50%;
   transform: translate(-50%, -50%);
   transition: transform 450ms cubic-bezier(0.4, 0, 0.2, 1);
-  background: conic-gradient(
-    from 0deg,
-    rgba(0,0,0,0) 0deg 40deg,
-    var(--indicator-color, var(--neutral-500)) 40deg 140deg,
-    rgba(0,0,0,0) 140deg 360deg
-  );
+  background: conic-gradient(from 0deg,
+      rgba(0, 0, 0, 0) 0deg 40deg,
+      var(--indicator-color, var(--neutral-500)) 40deg 140deg,
+      rgba(0, 0, 0, 0) 140deg 360deg);
   filter: none;
   pointer-events: none;
 }
 
-/* Aguja eliminada */
-
 /* Color binding by mode */
-.ultra-modern-selector-circle[data-mode="sdlc"] { --indicator-color: var(--sdlc-primary); }
-.ultra-modern-selector-circle[data-mode="stlc"] { --indicator-color: var(--stlc-primary); }
-.ultra-modern-selector-circle[data-mode="neutral"] { --indicator-color: var(--neutral-500); }
+.ultra-modern-selector-circle[data-mode="sdlc"] {
+  --indicator-color: var(--sdlc-primary);
+}
+
+.ultra-modern-selector-circle[data-mode="stlc"] {
+  --indicator-color: var(--stlc-primary);
+}
+
+.ultra-modern-selector-circle[data-mode="neutral"] {
+  --indicator-color: var(--neutral-500);
+}
 
 .selector-rings {
   position: absolute;
@@ -486,7 +505,7 @@
   transform: scale(1.1) rotate(5deg);
 }
 
-/* Popover personalizado con posición dinámica */
+/* Popover personalizado con posición dinámica mejorada */
 .popover-custom {
   width: 380px;
   max-width: 90vw;
@@ -495,12 +514,26 @@
   border: 2px solid var(--sdlc-primary);
   border-radius: 1.2rem;
   box-shadow: 0 25px 65px rgba(37, 99, 235, 0.3);
-  z-index: 1000;
-  transform: translateY(-50%);
+  z-index: 9999 !important;
   overflow: hidden;
+  animation: popoverFadeIn 0.3s ease-out;
+  position: absolute;
 }
 
-.popover-arrow {
+@keyframes popoverFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+}
+
+/* Flecha del popover - lado derecho por defecto */
+.popover-custom.bs-popover-end .popover-arrow {
   position: absolute;
   left: -12px;
   top: 50%;
@@ -512,7 +545,7 @@
   transform: translateY(-50%);
 }
 
-.popover-arrow::before {
+.popover-custom.bs-popover-end .popover-arrow::before {
   content: '';
   position: absolute;
   left: 1px;
@@ -522,6 +555,31 @@
   border-top: 10px solid transparent;
   border-bottom: 10px solid transparent;
   border-right: 10px solid rgba(255, 255, 255, 0.98);
+}
+
+/* Flecha del popover - lado izquierdo cuando se voltea */
+.popover-custom.bs-popover-start .popover-arrow {
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 12px solid var(--sdlc-primary);
+  transform: translateY(-50%);
+}
+
+.popover-custom.bs-popover-start .popover-arrow::before {
+  content: '';
+  position: absolute;
+  right: 1px;
+  top: -10px;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 10px solid rgba(255, 255, 255, 0.98);
 }
 
 .popover-header {
@@ -789,7 +847,7 @@
   animation-delay: 0.7s;
 }
 
-/* Ajustes responsivos */
+/* Ajustes responsivos mejorados */
 @media (max-width: 1200px) {
   .ultra-modern-selector-circle {
     width: 160px;
@@ -801,13 +859,12 @@
     border-right: 22px solid transparent;
     border-top: 35px solid;
   }
-  
-  /* Ajustar columnas para tablets grandes */
+
   .col-xl-5 {
     flex: 0 0 45%;
     max-width: 45%;
   }
-  
+
   .col-xl-2 {
     flex: 0 0 10%;
     max-width: 10%;
@@ -839,26 +896,26 @@
     font-size: 0.65rem;
   }
 
+  /* En móviles, mostrar el popover centrado */
   .popover-custom {
     position: fixed !important;
     top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
-    width: 90%;
-    max-width: 400px;
+    width: 90% !important;
+    max-width: 400px !important;
   }
 
-  .popover-arrow {
-    display: none;
+  .popover-custom .popover-arrow {
+    display: none !important;
   }
-  
-  /* Stack en columnas para tablets */
+
   .col-lg-5 {
     flex: 0 0 100%;
     max-width: 100%;
     margin-bottom: 2rem;
   }
-  
+
   .col-lg-2 {
     flex: 0 0 100%;
     max-width: 100%;
@@ -916,18 +973,22 @@
   .phase-item-modern:hover {
     transform: translateY(-2px);
   }
-  
-  /* Ajustar tabla para móviles */
+
   .modern-table-full thead th:nth-child(2),
   .modern-table-full thead th:nth-child(4),
   .modern-table-full tbody td:nth-child(2),
   .modern-table-full tbody td:nth-child(4) {
     display: none;
   }
-  
+
   .modern-table-full thead th:nth-child(1),
   .modern-table-full thead th:nth-child(3) {
     width: 50%;
+  }
+
+  .popover-custom {
+    width: 95% !important;
+    max-width: 350px !important;
   }
 }
 
@@ -969,9 +1030,14 @@
   .modern-table-full tbody td {
     padding: 0.6rem 0.8rem;
   }
-  
+
   .table-container-full {
     padding: 1rem;
     border-radius: 1rem;
+  }
+
+  .popover-custom {
+    width: 95% !important;
+    max-width: 320px !important;
   }
 }

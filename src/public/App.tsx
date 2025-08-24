@@ -11,6 +11,8 @@ const App: React.FC = () => {
 
   // Referencias para los elementos de fase
   const phaseRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Función para rotar el selector
   const rotateSelector = () => {
@@ -37,6 +39,27 @@ const App: React.FC = () => {
     return 90;
   };
 
+  // Función para calcular posición del popover
+  const calculatePopoverPosition = (index: number) => {
+    if (!phaseRefs.current[index] || !containerRef.current) return null;
+
+    const phaseElement = phaseRefs.current[index]!;
+    const containerElement = containerRef.current;
+
+    const phaseRect = phaseElement.getBoundingClientRect();
+    const containerRect = containerElement.getBoundingClientRect();
+
+    // Calcular posición relativa al contenedor
+    const relativeTop = phaseRect.top - containerRect.top;
+    const relativeLeft = phaseRect.right - containerRect.left;
+
+    // Posicionar a la derecha del elemento y centrado verticalmente
+    return {
+      top: relativeTop + (phaseRect.height / 2),
+      left: relativeLeft + 20 // 20px de margen desde el borde derecho
+    };
+  };
+
   // Manejar clic en una fase
   const handlePhaseClick = (index: number) => {
     if (selectedMethodology === 'sdlc') {
@@ -45,16 +68,14 @@ const App: React.FC = () => {
         setPopoverPosition(null);
       } else {
         setSelectedPhase(index);
-        // Calcular posición del popover basado en el elemento clickeado
-        if (phaseRefs.current[index]) {
-          const rect = phaseRefs.current[index]!.getBoundingClientRect();
-          const containerRect = document.querySelector('.container-xl')!.getBoundingClientRect();
-
-          setPopoverPosition({
-            top: rect.top - containerRect.top + rect.height / 2,
-            left: rect.right - containerRect.left + 20
-          });
-        }
+        
+        // Usar setTimeout para asegurar que el DOM esté actualizado
+        setTimeout(() => {
+          const position = calculatePopoverPosition(index);
+          if (position) {
+            setPopoverPosition(position);
+          }
+        }, 10);
       }
     } else if (selectedMethodology === 'stlc') {
       if (selectedPhase === index) {
@@ -65,28 +86,75 @@ const App: React.FC = () => {
     }
   };
 
+  // Reposicionar popover en resize/scroll
+  const repositionPopover = () => {
+    if (selectedPhase !== null && selectedMethodology === 'sdlc') {
+      const position = calculatePopoverPosition(selectedPhase);
+      if (position) {
+        setPopoverPosition(position);
+      }
+    }
+  };
+
   // Efecto para reposicionar el popover en scroll y resize
   useEffect(() => {
     const handleResize = () => {
-      if (selectedPhase !== null && selectedMethodology === 'sdlc' && phaseRefs.current[selectedPhase]) {
-        const rect = phaseRefs.current[selectedPhase]!.getBoundingClientRect();
-        const containerRect = document.querySelector('.container-xl')!.getBoundingClientRect();
+      repositionPopover();
+    };
 
-        setPopoverPosition({
-          top: rect.top - containerRect.top + rect.height / 2,
-          left: rect.right - containerRect.left + 20
-        });
-      }
+    const handleScroll = () => {
+      repositionPopover();
     };
 
     window.addEventListener('resize', handleResize);
-    window.addEventListener('scroll', handleResize, true);
+    window.addEventListener('scroll', handleScroll, true);
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      window.removeEventListener('scroll', handleResize, true);
+      window.removeEventListener('scroll', handleScroll, true);
     };
   }, [selectedPhase, selectedMethodology]);
+
+  // Efecto para ajustar popover si se sale de la pantalla
+  useEffect(() => {
+    if (popoverPosition && popoverRef.current && containerRef.current) {
+      const popover = popoverRef.current;
+      const container = containerRef.current;
+      
+      // Esperar a que el popover se renderice
+      setTimeout(() => {
+        const popoverRect = popover.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+
+        let newPosition = { ...popoverPosition };
+        let needsUpdate = false;
+
+        // Si se sale por la derecha, moverlo a la izquierda del elemento
+        if (containerRect.left + popoverPosition.left + popoverRect.width > viewportWidth - 20) {
+          if (selectedPhase !== null && phaseRefs.current[selectedPhase]) {
+            const phaseRect = phaseRefs.current[selectedPhase]!.getBoundingClientRect();
+            newPosition.left = (phaseRect.left - containerRect.left) - popoverRect.width - 20;
+            needsUpdate = true;
+          }
+        }
+
+        // Ajustar si se sale por arriba o abajo
+        const popoverTop = containerRect.top + popoverPosition.top;
+        if (popoverTop - (popoverRect.height / 2) < 20) {
+          newPosition.top = (20 - containerRect.top) + (popoverRect.height / 2);
+          needsUpdate = true;
+        } else if (popoverTop + (popoverRect.height / 2) > window.innerHeight - 20) {
+          newPosition.top = (window.innerHeight - 20 - containerRect.top) - (popoverRect.height / 2);
+          needsUpdate = true;
+        }
+
+        if (needsUpdate) {
+          setPopoverPosition(newPosition);
+        }
+      }, 50);
+    }
+  }, [popoverPosition, selectedPhase]);
 
   return (
     <div className="container-fluid py-4 modern-bg">
@@ -100,7 +168,7 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <div className="container-fluid position-relative px-4">
+      <div className="container-fluid position-relative px-4" ref={containerRef}>
         <div className="row justify-content-center align-items-start mb-5">
           {/* Tarjeta SDLC - Ocupa todo el ancho disponible */}
           <div className="col-lg-5 col-xl-5 mb-4">
@@ -205,7 +273,6 @@ const App: React.FC = () => {
                 aria-hidden="true"
                 style={{ transform: `translate(-50%, -50%) rotate(${getRotation()}deg)` }}
               ></div>
-              {/* Aguja eliminada a petición: solo usamos el degradado (arco) */}
               <div
                 className="selector-arrow-ultra"
                 style={{
@@ -302,7 +369,7 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Popover para SDLC con posición dinámica */}
+        {/* Popover para SDLC con posición dinámica mejorada */}
         {selectedPhase !== null && selectedMethodology === 'sdlc' && popoverPosition && (
           <div
             className="popover-custom bs-popover-end show animate-fade-in"
@@ -310,10 +377,12 @@ const App: React.FC = () => {
               position: 'absolute',
               top: `${popoverPosition.top}px`,
               left: `${popoverPosition.left}px`,
-              zIndex: 1000
+              transform: 'translateY(-50%)',
+              zIndex: 9999
             }}
+            ref={popoverRef}
           >
-            <div className="popover-arrow" style={{ top: '30px' }}></div>
+            <div className="popover-arrow"></div>
             <div className="popover-header bg-transparent border-0 d-flex align-items-center justify-content-between">
               <h6 className="mb-0 sdlc-color fw-bold">
                 <i className="bi bi-link-45deg me-2"></i>
