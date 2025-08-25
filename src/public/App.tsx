@@ -137,6 +137,22 @@ const App: React.FC = () => {
 
   // Reposicionar popover en resize/scroll
   const repositionPopover = () => {
+    // Evitar reposicionar/abrir popover cuando el mega modal está abierto
+    if (isRolesModalOpen) {
+      setPopoverPosition(null);
+      return;
+    }
+
+    // Evitar popover pequeño para las dos primeras fases de SDLC (Planificación y Análisis)
+    if (
+      selectedMethodology === 'sdlc' &&
+      selectedPhase !== null &&
+      (selectedPhase === 0 || selectedPhase === 1)
+    ) {
+      setPopoverPosition(null);
+      return;
+    }
+
     if (selectedPhase !== null && selectedMethodology !== null) {
       const position = calculatePopoverPosition(selectedPhase, popoverSide);
       if (position) {
@@ -166,6 +182,14 @@ const App: React.FC = () => {
 
   // Efecto para ajustar popover si se sale de la pantalla
   useEffect(() => {
+    // No ajustar ni mostrar popover si el mega modal está abierto o si es una de las dos primeras fases de SDLC
+    if (
+      isRolesModalOpen ||
+      (selectedMethodology === 'sdlc' && selectedPhase !== null && (selectedPhase === 0 || selectedPhase === 1))
+    ) {
+      return;
+    }
+
     if (popoverPosition && popoverRef.current && containerRef.current) {
       const popover = popoverRef.current;
       const container = containerRef.current;
@@ -429,7 +453,7 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {selectedPhase !== null && selectedMethodology === 'sdlc' && popoverPosition && (
+        {selectedPhase !== null && selectedMethodology === 'sdlc' && popoverPosition && selectedPhase >= 2 && (
           <div
             className={`popover-custom bs-popover-${popoverSide} show animate-fade-in`}
             style={{
