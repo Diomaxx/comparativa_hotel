@@ -27,6 +27,7 @@
   background: linear-gradient(135deg, #ffffff 0%, var(--neutral-50) 50%, #ffffff 100%);
   min-height: 100vh;
   position: relative;
+  padding-bottom: 6rem; 
 }
 
 .modern-bg::before {
@@ -74,7 +75,7 @@
 /* Título principal elegante */
 .title-container {
   position: relative;
-  padding: 2rem 0;
+  padding: 1rem 0;
 }
 
 .elegant-main-title {
@@ -259,7 +260,7 @@
 
 /* Estados destacados de cards */
 .highlighted-card {
-  transform: translateY(-8px) scale(1.03);
+  transform: translateY(-8px);
   box-shadow: 0 25px 70px rgba(0, 0, 0, 0.15) !important;
   z-index: 10;
 }
@@ -283,6 +284,11 @@
 
 .stlc-color {
   color: var(--stlc-primary) !important;
+}
+
+.selector-col { min-width: 100px; }
+@media (min-width: 1200px) {
+  .selector-col { min-width: 150px; }
 }
 
 /* Contenedores de iconos modernos */
@@ -625,9 +631,10 @@
   border-radius: 1.2rem;
   box-shadow: 0 25px 65px rgba(37, 99, 235, 0.3);
   z-index: 9999 !important;
-  overflow: hidden;
   animation: popoverFadeIn 0.3s ease-out;
   position: absolute;
+  max-height: 80vh;
+  overflow: auto;
 }
 
 @keyframes popoverFadeIn {
@@ -1179,7 +1186,6 @@
 
   /* En móviles, mostrar el popover centrado */
   .popover-custom {
-    position: fixed !important;
     top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
@@ -1200,7 +1206,7 @@
   .col-lg-2 {
     flex: 0 0 100%;
     max-width: 100%;
-    order: 3;
+    order: -1;
     margin-top: 2rem;
   }
   
@@ -1330,10 +1336,6 @@
     transform: translateY(-2px);
   }
 
-  .popover-custom {
-    width: 95% !important;
-    max-width: 350px !important;
-  }
 }
 
 /* Móviles pequeños (hasta 575px) */
@@ -1348,6 +1350,19 @@
     height: 100px;
   }
 
+  .popover-custom {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 90% !important;
+  max-width: 360px !important;
+  max-height: 80vh !important; 
+  overflow: auto !important;
+}
+.popover-custom .popover-arrow {
+  display: none !important;
+}
   .selector-arrow-ultra {
     border-left: 12px solid transparent;
     border-right: 12px solid transparent;
@@ -1396,11 +1411,6 @@
   
   .subtitle-text {
     font-size: 1rem;
-  }
-
-  .popover-custom {
-    width: 95% !important;
-    max-width: 320px !important;
   }
   
   /* Diseño de tarjeta para tabla en móviles */

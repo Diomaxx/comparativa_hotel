@@ -28,7 +28,7 @@ export const sdlc: Methodology = {
             title: "Planificación",
             description: "Identificar requerimientos del sistema de reservas, definir alcance, recursos y cronograma. Para el hotel, se determinan necesidades como reservas online, gestión de habitaciones y reporting.",
             icon: "bi bi-calendar-check",
-            relatedPhase: "Análisis de requerimientos de pruebas",
+            relatedPhase: "Análisis de Requisitos",
             useCase: "Durante la planificación del SDLC, el equipo de pruebas comienza a analizar qué aspectos del sistema de reservas requerirán verificación, como la disponibilidad de habitaciones en tiempo real y la integración con pasarelas de pago."
         },
         {
@@ -84,7 +84,7 @@ export const stlc: Methodology = {
     definition: "Ciclo de Vida de Pruebas de Software: Proceso sistemático para verificar y validar que el software cumple con los requisitos establecidos y estándares de calidad.",
     phases: [
         {
-            title: "Análisis de requerimientos de pruebas",
+            title: "Análisis de reqs. de pruebas",
             description: "Determinar qué se va a probar en el sistema de reservas: funcionalidades críticas (reservas, cancelaciones), requisitos no funcionales (tiempos de respuesta, seguridad) y compatibilidad con dispositivos.",
             icon: "bi bi-search",
             relatedPhase: "Planificación SDLC",

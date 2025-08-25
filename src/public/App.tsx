@@ -8,11 +8,15 @@ const App: React.FC = () => {
   const [selectedMethodology, setSelectedMethodology] = useState<'sdlc' | 'stlc' | null>(null);
   const [selectedPhase, setSelectedPhase] = useState<number | null>(null);
   const [popoverPosition, setPopoverPosition] = useState<{ top: number, left: number } | null>(null);
+  const [popoverSide, setPopoverSide] = useState<'start' | 'end'>('start');
 
+  const POPOVER_WIDTH = 380;
+  const POPOVER_MARGIN = 20;
   // Referencias para los elementos de fase
   const phaseRefs = useRef<(HTMLDivElement | null)[]>([]);
   const popoverRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
 
   // Función para rotar el selector
   const rotateSelector = () => {
@@ -40,25 +44,32 @@ const App: React.FC = () => {
   };
 
   // Función para calcular posición del popover
-  const calculatePopoverPosition = (index: number) => {
+  const calculatePopoverPosition = (index: number, forceSide?: 'start' | 'end') => {
     if (!phaseRefs.current[index] || !containerRef.current) return null;
 
-    const phaseElement = phaseRefs.current[index]!;
-    const containerElement = containerRef.current;
+    const phaseEl = phaseRefs.current[index]!;
+    const containerEl = containerRef.current;
 
-    const phaseRect = phaseElement.getBoundingClientRect();
-    const containerRect = containerElement.getBoundingClientRect();
+    const phaseRect = phaseEl.getBoundingClientRect();
+    const containerRect = containerEl.getBoundingClientRect();
 
-    // Calcular posición relativa al contenedor
-    const relativeTop = phaseRect.top - containerRect.top;
-    const relativeLeft = phaseRect.right - containerRect.left;
+    let side: 'start' | 'end' = forceSide ?? 'end';
+    if (!forceSide) {
+      const spaceRight = window.innerWidth - phaseRect.right;
+      side = spaceRight >= (POPOVER_WIDTH + POPOVER_MARGIN) ? 'end' : 'start';
+    }
+    if (popoverSide !== side) setPopoverSide(side);
 
-    // Posicionar a la derecha del elemento y centrado verticalmente
-    return {
-      top: relativeTop + (phaseRect.height / 2),
-      left: relativeLeft + 20 // 20px de margen desde el borde derecho
-    };
+    const top = (phaseRect.top - containerRect.top) + (phaseRect.height / 2);
+
+    const left =
+      side === 'end'
+        ? (phaseRect.right - containerRect.left) + POPOVER_MARGIN
+        : (phaseRect.left - containerRect.left) - POPOVER_WIDTH - POPOVER_MARGIN;
+
+    return { top, left };
   };
+
 
   // Manejar clic en una fase
   const handlePhaseClick = (index: number) => {
@@ -71,7 +82,7 @@ const App: React.FC = () => {
 
         // Usar setTimeout para asegurar que el DOM esté actualizado
         setTimeout(() => {
-          const position = calculatePopoverPosition(index);
+          const position = calculatePopoverPosition(index, 'end');
           if (position) {
             setPopoverPosition(position);
           }
@@ -80,16 +91,21 @@ const App: React.FC = () => {
     } else if (selectedMethodology === 'stlc') {
       if (selectedPhase === index) {
         setSelectedPhase(null);
+        setPopoverPosition(null);
       } else {
         setSelectedPhase(index);
+        setTimeout(() => {
+          const position = calculatePopoverPosition(index,'start');
+          if (position) setPopoverPosition(position);
+        }, 10);
       }
     }
   };
 
   // Reposicionar popover en resize/scroll
   const repositionPopover = () => {
-    if (selectedPhase !== null && selectedMethodology === 'sdlc') {
-      const position = calculatePopoverPosition(selectedPhase);
+    if (selectedPhase !== null && selectedMethodology !== null) {
+      const position = calculatePopoverPosition(selectedPhase, popoverSide);
       if (position) {
         setPopoverPosition(position);
       }
@@ -113,7 +129,7 @@ const App: React.FC = () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('scroll', handleScroll, true);
     };
-  }, [selectedPhase, selectedMethodology]);
+  }, [selectedPhase, selectedMethodology, popoverSide]);
 
   // Efecto para ajustar popover si se sale de la pantalla
   useEffect(() => {
@@ -130,21 +146,13 @@ const App: React.FC = () => {
         let newPosition = { ...popoverPosition };
         let needsUpdate = false;
 
-        // Si se sale por la derecha, moverlo a la izquierda del elemento
-        if (containerRect.left + popoverPosition.left + popoverRect.width > viewportWidth - 20) {
-          if (selectedPhase !== null && phaseRefs.current[selectedPhase]) {
-            const phaseRect = phaseRefs.current[selectedPhase]!.getBoundingClientRect();
-            newPosition.left = (phaseRect.left - containerRect.left) - popoverRect.width - 20;
-            needsUpdate = true;
-          }
-        }
 
         // Ajustar si se sale por arriba o abajo
         const popoverTop = containerRect.top + popoverPosition.top;
-        if (popoverTop - (popoverRect.height / 2) < 20) {
-          newPosition.top = (20 - containerRect.top) + (popoverRect.height / 2);
+        if (popoverTop - (popoverRect.height / 2) > 5) {
+          newPosition.top = (30-containerRect.top) + (popoverRect.height / 3);
           needsUpdate = true;
-        } else if (popoverTop + (popoverRect.height / 2) > window.innerHeight - 20) {
+        } else if (popoverTop + (popoverRect.height / 2) > window.innerHeight - 5) {
           newPosition.top = (window.innerHeight - 20 - containerRect.top) - (popoverRect.height / 2);
           needsUpdate = true;
         }
@@ -157,7 +165,7 @@ const App: React.FC = () => {
   }, [popoverPosition, selectedPhase]);
 
   return (
-    <div className="container-fluid py-4 modern-bg">
+    <div className="container-fluid py-2 modern-bg">
       <header className="text-center header-gradient">
         <div className="container">
           <div className="title-container">
@@ -166,10 +174,10 @@ const App: React.FC = () => {
                 <i className="bi bi-diagram-3-fill"></i>
               </span>
               <span className="title-text">
+                <span className="organizer-text">Organizador</span>
                 <span className="sdlc-text">SDLC</span>
                 <span className="ampersand">&</span>
                 <span className="stlc-text">STLC</span>
-                <span className="organizer-text">Organizer</span>
               </span>
             </h1>
             <div className="title-divider"></div>
@@ -178,10 +186,10 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <div className="container-fluid position-relative px-4" ref={containerRef}>
-        <div className="row justify-content-center align-items-start mb-5">
+      <div className=" container-fluid position-relative px-4" ref={containerRef}>
+        <div className="row justify-content-center align-items-center mb-5 g-2">
           {/* Tarjeta SDLC - Ocupa todo el ancho disponible */}
-          <div className="col-lg-5 col-xl-5 mb-4">
+          <div className="col-lg-4 col-xl-4  mb-4">
             <div
               className={`card ultra-modern-card h-100 border-0 shadow-lg transition-all ${selectedMethodology === 'sdlc' ? 'highlighted-card sdlc-highlighted' : ''}`}
             >
@@ -246,8 +254,7 @@ const App: React.FC = () => {
             </div>
           </div>
 
-          {/* Selector circular central mejorado */}
-          <div className="col-lg-2 col-xl-2 text-center d-flex flex-column justify-content-center align-items-center my-4">
+          <div className="col-lg-3 col-xl-3 selector-col text-center d-flex flex-column justify-content-center align-items-center my-4">
             <div
               className="ultra-modern-selector-circle mx-auto d-flex align-items-center justify-content-center position-relative"
               onClick={rotateSelector}
@@ -315,7 +322,7 @@ const App: React.FC = () => {
           </div>
 
           {/* Tarjeta STLC - Ocupa todo el ancho disponible */}
-          <div className="col-lg-5 col-xl-5 mb-4">
+          <div className="col-lg-4 col-xl-4 mb-4">
             <div
               className={`card ultra-modern-card h-100 border-0 shadow-lg transition-all ${selectedMethodology === 'stlc' ? 'highlighted-card stlc-highlighted' : ''}`}
             >
@@ -357,6 +364,7 @@ const App: React.FC = () => {
                       {stlc.phases.map((phase, index) => (
                         <div
                           key={index}
+                          ref={(el) => { phaseRefs.current[index] = el; }}
                           className={`phase-item-modern mb-3 p-3 rounded-3 hover-effect cursor-pointer ${selectedPhase === index ? 'phase-selected-modern stlc-selected' : ''}`}
                           onClick={() => handlePhaseClick(index)}
                         >
@@ -379,10 +387,9 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Popover para SDLC con posición dinámica mejorada */}
         {selectedPhase !== null && selectedMethodology === 'sdlc' && popoverPosition && (
           <div
-            className="popover-custom bs-popover-end show animate-fade-in"
+            className="popover-custom bs-popover-${popoverSide} show animate-fade-in"
             style={{
               position: 'absolute',
               top: `${popoverPosition.top}px`,
@@ -442,7 +449,68 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {/* Tabla comparativa mejorada - Ocupa todo el ancho */}
+        {selectedPhase !== null && selectedMethodology === 'stlc' && popoverPosition && (
+          <div
+            className="popover-custom bs-popover-${popoverSide} show animate-fade-in"
+            style={{
+              position: 'absolute',
+              top: `${popoverPosition.top}px`,
+              left: `${popoverPosition.left}px`,
+              transform: 'translateY(-50%)',
+              zIndex: 9999
+            }}
+            ref={popoverRef}
+          >
+            <div className="popover-arrow"></div>
+            <div className="popover-header bg-transparent border-0 d-flex align-items-center justify-content-between">
+              <h6 className="mb-0 stlc-color fw-bold">
+                <i className="bi bi-link-45deg me-2"></i>
+                Relación STLC‑SDLC
+              </h6>
+              <button
+                type="button"
+                className="btn-close btn-close-sm"
+                onClick={() => { setSelectedPhase(null); setPopoverPosition(null); }}
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="popover-body p-3">
+              <div className="mb-3">
+                <div className="d-flex align-items-center mb-2">
+                  <i className={`${stlc.phases[selectedPhase].icon} me-2 stlc-color`}></i>
+                  <h6 className="mb-0 stlc-color fw-semibold">
+                    {stlc.phases[selectedPhase].title}
+                  </h6>
+                </div>
+                <p className="text-muted small lh-sm mb-3">
+                  {stlc.phases[selectedPhase].description}
+                </p>
+              </div>
+
+              <div className="connection-arrow text-center mb-3">
+                <i className="bi bi-arrow-down text-muted fs-5"></i>
+              </div>
+
+              <div className="mb-3">
+                <h6 className="sdlc-color fw-semibold mb-2">
+                  <i className="bi bi-code-slash me-2"></i>
+                  {stlc.phases[selectedPhase].relatedPhase || sdlc.phases[selectedPhase]?.title || 'Fase relacionada del SDLC'}
+                </h6>
+              </div>
+
+              <div className="use-case-container-modern p-3 rounded-3">
+                <h6 className="d-flex align-items-center mb-2 text-dark fw-semibold">
+                  <i className="bi bi-lightbulb-fill me-2 text-warning"></i>
+                  Caso de Uso
+                </h6>
+                <p className="small mb-0 text-dark lh-sm">
+                  {stlc.phases[selectedPhase].useCase || 'Aplicación práctica de esta fase de pruebas en el sistema de reservas.'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Tabla comparativa mejorada - Ocupa todo el ancho */}
         <div className="row mt-5 pt-4">
           <div className="col-12">
