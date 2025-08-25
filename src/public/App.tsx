@@ -1,7 +1,7 @@
 // App.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import '../styles/App.css';
-import { sdlc, stlc } from '../js/datos';
+import { sdlc, stlc, roles, roleToRequirements, nonFunctionalRequirements, type RoleKey } from '../js/datos';
 
 const App: React.FC = () => {
   // Estados para controlar la rotación del selector
@@ -9,6 +9,11 @@ const App: React.FC = () => {
   const [selectedPhase, setSelectedPhase] = useState<number | null>(null);
   const [popoverPosition, setPopoverPosition] = useState<{ top: number, left: number } | null>(null);
   const [popoverSide, setPopoverSide] = useState<'start' | 'end'>('start');
+  // Estado para modal de roles (Planificación / Análisis)
+  const [isRolesModalOpen, setIsRolesModalOpen] = useState(false);
+  const [rolesModalPhaseIndex, setRolesModalPhaseIndex] = useState<number | null>(null);
+  const [activeModalTab, setActiveModalTab] = useState<'rf' | 'nfr'>('rf');
+  const [selectedRole, setSelectedRole] = useState<RoleKey | null>(null);
 
   const POPOVER_WIDTH = 380;
   const POPOVER_MARGIN = 20;
@@ -74,6 +79,16 @@ const App: React.FC = () => {
   // Manejar clic en una fase
   const handlePhaseClick = (index: number) => {
     if (selectedMethodology === 'sdlc') {
+      // Abrir modal grande solo para Planificación (0) y Análisis (1)
+      if (index === 0 || index === 1) {
+        setSelectedPhase(index);
+        setRolesModalPhaseIndex(index);
+        setIsRolesModalOpen(true);
+        setActiveModalTab('rf');
+        setSelectedRole(null);
+        setPopoverPosition(null);
+        return;
+      }
       if (selectedPhase === index) {
         setSelectedPhase(null);
         setPopoverPosition(null);
@@ -99,6 +114,24 @@ const App: React.FC = () => {
           if (position) setPopoverPosition(position);
         }, 10);
       }
+    }
+  };
+
+  const closeRolesModal = () => {
+    setIsRolesModalOpen(false);
+    setSelectedRole(null);
+    setRolesModalPhaseIndex(null);
+  };
+
+  const handleRoleClick = (roleKey: RoleKey) => {
+    setSelectedRole(roleKey);
+  };
+
+  const handleBackInModal = () => {
+    if (selectedRole) {
+      setSelectedRole(null);
+    } else {
+      closeRolesModal();
     }
   };
 
@@ -163,6 +196,16 @@ const App: React.FC = () => {
       }, 50);
     }
   }, [popoverPosition, selectedPhase]);
+
+  // Bloquear scroll del fondo cuando el mega modal está abierto
+  useEffect(() => {
+    if (isRolesModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [isRolesModalOpen]);
 
   return (
     <div className="container-fluid py-2 modern-bg">
@@ -302,7 +345,6 @@ const App: React.FC = () => {
               <div className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
                 <div className="text-center selector-content">
                   <i className="bi bi-arrow-repeat text-muted fs-4 mb-1"></i>
-                  <div className="selector-text-modern d-block small fw-medium text-muted">Click para cambiar</div>
                 </div>
               </div>
 
@@ -389,7 +431,7 @@ const App: React.FC = () => {
 
         {selectedPhase !== null && selectedMethodology === 'sdlc' && popoverPosition && (
           <div
-            className="popover-custom bs-popover-${popoverSide} show animate-fade-in"
+            className={`popover-custom bs-popover-${popoverSide} show animate-fade-in`}
             style={{
               position: 'absolute',
               top: `${popoverPosition.top}px`,
@@ -445,13 +487,165 @@ const App: React.FC = () => {
                   {sdlc.phases[selectedPhase].useCase}
                 </p>
               </div>
+
+              {/* Contenido adicional para Diseño del sistema: UML + STLC */}
+              {sdlc.phases[selectedPhase].title === 'Diseño del sistema' && (
+                <div className="mt-3">
+                  <h6 className="sdlc-color fw-semibold mb-2"><i className="bi bi-diagram-3 me-2"></i>Diagramas UML recomendados</h6>
+                  <ul className="small mb-3">
+                    <li>Diagrama de Casos de Uso: Reserva, Cancelación, Check‑in/Check‑out.</li>
+                    <li>Diagrama de Clases: <code>Reserva</code>, <code>Habitacion</code>, <code>Tarifa</code>, <code>Pago</code>, <code>Usuario</code>.</li>
+                    <li>Diagrama de Secuencia: Flujo "Reserva con depósito" (Cliente→Web→Pasarela→Sistema).</li>
+                    <li>Diagrama de Actividad: Búsqueda y disponibilidad con alternativas.</li>
+                    <li>Diagrama de Estados: Ciclo de vida de <code>Reserva</code> (pendiente, pagado, cancelado, no‑show).</li>
+                  </ul>
+                  <div className="use-case-container-modern p-3 rounded-3">
+                    <h6 className="d-flex align-items-center mb-2 stlc-color fw-semibold">
+                      <i className="bi bi-shield-check me-2"></i>Validación STLC sobre diseños
+                    </h6>
+                    <ul className="small mb-0">
+                      <li>Revisiones estáticas: consistencia entre casos de uso y clases (trazabilidad RF→clases→endpoints).</li>
+                      <li>Generación de casos de prueba a partir de secuencias (mensajes, errores, timeouts de pasarela).</li>
+                      <li>Model‑based testing: derivar paths del diagrama de estados de <code>Reserva</code>.</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+
+              {sdlc.phases[selectedPhase].title === 'Pruebas' && (
+                <div className="mt-3">
+                  <h6 className="stlc-color fw-semibold mb-2"><i className="bi bi-clipboard2-check me-2"></i>Tipos de pruebas (STLC)</h6>
+                  <div className="row g-2">
+                    <div className="col-12 col-md-6">
+                      <div className="role-card">
+                        <div className="fw-semibold stlc-color mb-1">Unitarias</div>
+                        <ul className="small mb-0">
+                          <li>Servicios de disponibilidad, cálculo de tarifas.</li>
+                        </ul>
+                      </div>
+                    </div>
+                    <div className="col-12 col-md-6">
+                      <div className="role-card">
+                        <div className="fw-semibold stlc-color mb-1">Integración</div>
+                        <ul className="small mb-0">
+                          <li>Reserva ↔ Pago ↔ Disponibilidad.</li>
+                        </ul>
+                      </div>
+                    </div>
+                    <div className="col-12 col-md-6">
+                      <div className="role-card">
+                        <div className="fw-semibold stlc-color mb-1">API</div>
+                        <ul className="small mb-0">
+                          <li>Contratos y errores; códigos y payloads.</li>
+                        </ul>
+                      </div>
+                    </div>
+                    <div className="col-12 col-md-6">
+                      <div className="role-card">
+                        <div className="fw-semibold stlc-color mb-1">E2E</div>
+                        <ul className="small mb-0">
+                          <li>Búsqueda → reserva → pago → confirmación.</li>
+                        </ul>
+                      </div>
+                    </div>
+                    <div className="col-12 col-md-6">
+                      <div className="role-card">
+                        <div className="fw-semibold stlc-color mb-1">Rendimiento</div>
+                        <ul className="small mb-0">
+                          <li>Picos 20:00; 100 req/s.</li>
+                        </ul>
+                      </div>
+                    </div>
+                    <div className="col-12 col-md-6">
+                      <div className="role-card">
+                        <div className="fw-semibold stlc-color mb-1">Seguridad</div>
+                        <ul className="small mb-0">
+                          <li>AuthZ por rol, OWASP Top 10, privacidad de datos.</li>
+                        </ul>
+                      </div>
+                    </div>
+                    <div className="col-12 col-md-6">
+                      <div className="role-card">
+                        <div className="fw-semibold stlc-color mb-1">Usabilidad</div>
+                        <ul className="small mb-0">
+                          <li>Flujo sin fricción; móvil.</li>
+                        </ul>
+                      </div>
+                    </div>
+                    <div className="col-12 col-md-6">
+                      <div className="role-card">
+                        <div className="fw-semibold stlc-color mb-1">UAT</div>
+                        <ul className="small mb-0">
+                          <li>Validación de escenarios reales.</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {sdlc.phases[selectedPhase].title === 'Desarrollo' && (
+                <div className="mt-3">
+                  <h6 className="sdlc-color fw-semibold mb-2"><i className="bi bi-braces-asterisk me-2"></i>Buenas prácticas de desarrollo</h6>
+                  <ul className="small mb-3">
+                    <li>Branching (main/dev/feature) y PRs con checks automáticos.</li>
+                    <li>CI/CD: build, lint, pruebas unitarias y de contratos.</li>
+                    <li>Feature flags para cambios en tarifas/políticas.</li>
+                  </ul>
+                  <div className="use-case-container-modern p-3 rounded-3">
+                    <h6 className="d-flex align-items-center mb-2 stlc-color fw-semibold"><i className="bi bi-patch-check me-2"></i>STLC durante desarrollo</h6>
+                    <ul className="small mb-0">
+                      <li>Unitarias obligatorias para disponibilidad y tarifas.</li>
+                      <li>Contratos API con mocks de pasarela de pago.</li>
+                      <li>Smoke E2E en pipeline para flujos críticos.</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+
+              {sdlc.phases[selectedPhase].title === 'Implementación/Despliegue' && (
+                <div className="mt-3">
+                  <h6 className="sdlc-color fw-semibold mb-2"><i className="bi bi-rocket-takeoff me-2"></i>Estrategia de despliegue</h6>
+                  <ul className="small mb-3">
+                    <li>Migración de datos (clientes, reservas, tarifas).</li>
+                    <li>Capacitación de recepción y gerencia.</li>
+                  </ul>
+                  <div className="use-case-container-modern p-3 rounded-3">
+                    <h6 className="d-flex align-items-center mb-2 stlc-color fw-semibold"><i className="bi bi-clipboard-pulse me-2"></i>STLC post‑deploy</h6>
+                    <ul className="small mb-0">
+                      <li>Smoke: búsqueda, reserva, pago, notificación.</li>
+                      <li>Monitoreo P95/P99, errores 5xx, logs.</li>
+                      <li>Rollback verificado.</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+
+              {sdlc.phases[selectedPhase].title === 'Mantenimiento' && (
+                <div className="mt-3">
+                  <h6 className="sdlc-color fw-semibold mb-2"><i className="bi bi-tools me-2"></i>Operación y mejora continua</h6>
+                  <ul className="small mb-3">
+                    <li>SLA, rotación de logs, observabilidad.</li>
+                    <li>Gestión de incidentes y cambios versionados.</li>
+                    <li>Optimización de rendimiento en picos.</li>
+                  </ul>
+                  <div className="use-case-container-modern p-3 rounded-3">
+                    <h6 className="d-flex align-items-center mb-2 stlc-color fw-semibold"><i className="bi bi-arrow-repeat me-2"></i>STLC en mantenimiento</h6>
+                    <ul className="small mb-0">
+                      <li>Regresión por release y pruebas de resiliencia.</li>
+                      <li>Pruebas de seguridad recurrentes (OWASP Top 10).</li>
+                      <li>UAT para validar mejoras con recepción/gerencia.</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
 
         {selectedPhase !== null && selectedMethodology === 'stlc' && popoverPosition && (
           <div
-            className="popover-custom bs-popover-${popoverSide} show animate-fade-in"
+            className={`popover-custom bs-popover-${popoverSide} show animate-fade-in stlc-mode`}
             style={{
               position: 'absolute',
               top: `${popoverPosition.top}px`,
@@ -511,6 +705,292 @@ const App: React.FC = () => {
           </div>
         )}
 
+        {/* ===================== MODAL GRANDE ROLES/RF/NFR ===================== */}
+        {isRolesModalOpen && rolesModalPhaseIndex !== null && (
+          <div className="mega-modal-overlay" role="dialog" aria-modal="true">
+            <div className="mega-modal-container">
+              <div className="mega-modal-header">
+                <div className="d-flex align-items-center gap-2">
+                  <i className="bi bi-calendar-check sdlc-color"></i>
+                  <h5 className="mb-0 fw-bold sdlc-color">
+                    {sdlc.phases[rolesModalPhaseIndex].title} · SDLC
+                  </h5>
+                </div>
+                <div className="d-flex align-items-center gap-2">
+                  <button className="btn btn-outline-secondary btn-sm" onClick={handleBackInModal}>
+                    {selectedRole ? 'Volver' : 'Cerrar'}
+                  </button>
+                </div>
+              </div>
+              <div className="mega-modal-subheader">
+                <p className="small text-muted mb-0">
+                  {sdlc.phases[rolesModalPhaseIndex].description}
+                </p>
+              </div>
+
+              <div className="mega-modal-tabs">
+                <button
+                  className={`mega-tab sdlc-theme ${activeModalTab === 'rf' ? 'active' : ''}`}
+                  onClick={() => setActiveModalTab('rf')}
+                >
+                  <i className="bi bi-people me-2"></i>Roles y Reqs. Funcionales
+                </button>
+                <button
+                  className={`mega-tab stlc-theme ${activeModalTab === 'nfr' ? 'active' : ''}`}
+                  onClick={() => setActiveModalTab('nfr')}
+                >
+                  <i className="bi bi-shield-lock me-2"></i>NFR y Pruebas STLC
+                </button>
+              </div>
+
+              <div className="mega-modal-body">
+                {activeModalTab === 'rf' && (
+                  <>
+                    {/* Contenido específico por fase: Planificación (0) vs Análisis (1) vs Desarrollo (3) vs Implementación (5) vs Mantenimiento (6) */}
+                    {rolesModalPhaseIndex === 0 && (
+                      <div className="row g-3 mb-3">
+                        <div className="col-12 col-lg-4">
+                          <div className="role-card">
+                            <h6 className="sdlc-color fw-semibold mb-2"><i className="bi bi-bullseye me-2"></i>Objetivos y Alcance</h6>
+                            <ul className="small mb-0">
+                              <li>Definir alcance MVP: búsqueda, reservas, pagos con depósito.</li>
+                              <li>Stakeholders: Dueño, Gerente, Recepción, Cliente.</li>
+                              <li>Roadmap de hitos: MVP → Integraciones → Reporting.</li>
+                            </ul>
+                          </div>
+                        </div>
+                        <div className="col-12 col-lg-4">
+                          <div className="role-card">
+                            <h6 className="sdlc-color fw-semibold mb-2"><i className="bi bi-speedometer2 me-2"></i>KPIs de proyecto</h6>
+                            <ul className="small mb-0">
+                              <li>Conversión de búsqueda→reserva ≥ 3%.</li>
+                              <li>Tiempo P95 de disponibilidad ≤ 2s.</li>
+                              <li>Defectos críticos en producción = 0 al lanzamiento.</li>
+                            </ul>
+                          </div>
+                        </div>
+                        <div className="col-12 col-lg-4">
+                          <div className="role-card">
+                            <h6 className="sdlc-color fw-semibold mb-2"><i className="bi bi-exclamation-triangle me-2"></i>Riesgos</h6>
+                            <ul className="small mb-0">
+                              <li>Integración con pasarela inestable → mocks y reintentos.</li>
+                              <li>Datos maestros inconsistentes → migración y validaciones.</li>
+                              <li>Estacionalidad → pruebas de rendimiento con picos.</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {rolesModalPhaseIndex === 1 && (
+                      <div className="row g-3 mb-3">
+                        <div className="col-12 col-xl-6">
+                          <div className="role-card">
+                            <h6 className="sdlc-color fw-semibold mb-2"><i className="bi bi-journal-text me-2"></i>Historias de usuario</h6>
+                            <ul className="small mb-0">
+                              <li>Como Cliente, quiero buscar por fechas para ver disponibilidad (RF‑01).</li>
+                              <li>Como Recepcionista, quiero unificar reserva y llegada para no duplicar datos (RF‑05).</li>
+                              <li>Como Admin. Financiero, quiero conciliar pagos para detectar pendientes (RF‑07, RF‑13).</li>
+                            </ul>
+                          </div>
+                        </div>
+                        <div className="col-12 col-xl-6">
+                          <div className="role-card">
+                            <h6 className="stlc-color fw-semibold mb-2"><i className="bi bi-list-check me-2"></i>Criterios de aceptación (STLC)</h6>
+                            <ul className="small mb-2">
+                              <li>Dado fechas válidas, cuando busco, entonces veo tipos y tarifas (RF‑02).</li>
+                              <li>Dado sin cupo, cuando busco, entonces recibo alternativas (RF‑03).</li>
+                              <li>Dado depósito 30%, cuando pago, entonces el saldo refleja el 70% restante (RF‑06).</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {rolesModalPhaseIndex === 3 && (
+                      <div className="row g-3 mb-3">
+                        <div className="col-12 col-xl-4">
+                          <div className="role-card">
+                            <h6 className="sdlc-color fw-semibold mb-2"><i className="bi bi-braces-asterisk me-2"></i>Buenas prácticas</h6>
+                            <ul className="small mb-0">
+                              <li>Branching Git (main/dev/feature), PRs con checks.</li>
+                              <li>CI/CD: build, lint, unit tests, quality gate.</li>
+                              <li>Feature flags para cambios de tarifas/políticas.</li>
+                            </ul>
+                          </div>
+                        </div>
+                        <div className="col-12 col-xl-4">
+                          <div className="role-card">
+                            <h6 className="stlc-color fw-semibold mb-2"><i className="bi bi-patch-check me-2"></i>Pruebas continuas (STLC)</h6>
+                            <ul className="small mb-0">
+                              <li>Unitarias obligatorias en servicios críticos.</li>
+                              <li>Contratos API y mocks de pasarela de pago.</li>
+                              <li>Regresión rápida en pipeline (smoke E2E).</li>
+                            </ul>
+                          </div>
+                        </div>
+                        <div className="col-12 col-xl-4">
+                          <div className="role-card">
+                            <h6 className="sdlc-color fw-semibold mb-2"><i className="bi bi-diagram-3 me-2"></i>Integraciones</h6>
+                            <ul className="small mb-0">
+                              <li>Pasarela de pagos con reintentos/timeout.</li>
+                              <li>Mensajería para notificaciones (email/WhatsApp).</li>
+                              <li>Inventario/ocupación en tiempo real.</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {rolesModalPhaseIndex === 5 && (
+                      <div className="row g-3 mb-3">
+                        <div className="col-12 col-xl-4">
+                          <div className="role-card">
+                            <h6 className="sdlc-color fw-semibold mb-2"><i className="bi bi-rocket-takeoff me-2"></i>Estrategia de despliegue</h6>
+                            <ul className="small mb-0">
+                              <li>Blue/Green o canary para cambios de políticas.</li>
+                              <li>Migración de datos (clientes, reservas, tarifas).</li>
+                              <li>Capacitación a recepción y gerencia.</li>
+                            </ul>
+                          </div>
+                        </div>
+                        <div className="col-12 col-xl-4">
+                          <div className="role-card">
+                            <h6 className="stlc-color fw-semibold mb-2"><i className="bi bi-clipboard-pulse me-2"></i>Verificación post‑deploy (STLC)</h6>
+                            <ul className="stlc-color small mb-0">
+                              <li>Smoke: búsqueda, reserva, pago, notificación.</li>
+                              <li>Monitoreo P95/P99, errores 5xx, logs.</li>
+                              <li>Rollback plan probado.</li>
+                            </ul>
+                          </div>
+                        </div>
+                        <div className="col-12 col-xl-4">
+                          <div className="role-card">
+                            <h6 className="sdlc-color fw-semibold mb-2"><i className="bi bi-shield-lock me-2"></i>Conformidad</h6>
+                            <ul className="small mb-0">
+                              <li>PCI‑DSS para pagos y protección de datos.</li>
+                              <li>Backups y encriptación en reposo/transito.</li>
+                              <li>Auditoría de acciones críticas.</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {rolesModalPhaseIndex === 6 && (
+                      <div className="row g-3 mb-3">
+                        <div className="col-12 col-xl-4">
+                          <div className="role-card">
+                            <h6 className="sdlc-color fw-semibold mb-2"><i className="bi bi-tools me-2"></i>Operación</h6>
+                            <ul className="small mb-0">
+                              <li>SLA de atención; rotación de logs y métricas.</li>
+                              <li>Gestión de incidentes y problemas.</li>
+                              <li>Gestión de cambios versionada.</li>
+                            </ul>
+                          </div>
+                        </div>
+                        <div className="col-12 col-xl-4">
+                          <div className="role-card">
+                            <h6 className="stlc-color fw-semibold mb-2"><i className="bi bi-arrow-repeat me-2"></i>Regresión y hardening (STLC)</h6>
+                            <ul className="stlc-color small mb-0">
+                              <li>Suite de regresión por release.</li>
+                              <li>Pruebas de resiliencia y recuperación.</li>
+                              <li>Pruebas de seguridad recurrentes.</li>
+                            </ul>
+                          </div>
+                        </div>
+                        <div className="col-12 col-xl-4">
+                          <div className="role-card">
+                            <h6 className="sdlc-color fw-semibold mb-2"><i className="bi bi-graph-up-arrow me-2"></i>Mejora continua</h6>
+                            <ul className="small mb-0">
+                              <li>Feedback de recepción/cliente y priorización.</li>
+                              <li>Optimización de rendimiento en picos.</li>
+                              <li>Actualizaciones de métodos de pago.</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {!selectedRole && (
+                      <div className="row g-3">
+                        {roles.map((role) => (
+                          <div key={role.key} className="col-12 col-md-6 col-lg-4">
+                            <div className="role-card h-100" onClick={() => handleRoleClick(role.key)}>
+                              <div className="d-flex align-items-start gap-2 mb-2">
+                                <i className={`${role.icon} fs-5 sdlc-color`}></i>
+                                <h6 className="mb-0 fw-semibold">{role.name}</h6>
+                              </div>
+                              <p className="small text-muted mb-0">{role.description}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {selectedRole && (
+                      <div className="role-detail">
+                        <div className="d-flex align-items-center justify-content-between mb-3">
+                          <div className="d-flex align-items-center gap-2">
+                            <i className="bi bi-arrow-left-circle cursor-pointer" onClick={() => setSelectedRole(null)}></i>
+                            <h6 className="mb-0">Requisitos del rol · {roles.find(r => r.key === selectedRole)?.name}</h6>
+                          </div>
+                          <button className="btn btn-sm btn-outline-secondary" onClick={() => setSelectedRole(null)}>Volver</button>
+                        </div>
+
+                        <div className="list-group list-group-flush">
+                          {roleToRequirements[selectedRole].map((req) => (
+                            <div className="list-group-item role-req-item" key={req.code}>
+                              <div className="d-flex justify-content-between align-items-start">
+                                <div>
+                                  <div className="fw-bold sdlc-color">{req.code} · {req.title}</div>
+                                  <div className="small text-muted">{req.details}</div>
+                                </div>
+                              </div>
+                              <ul className="stlc-color small mt-2 mb-0">
+                                {req.stlcTests.map((t, idx) => (
+                                  <li key={idx}>{t}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {activeModalTab === 'nfr' && (
+                  <div className="nfr-grid">
+                    {nonFunctionalRequirements.map(section => (
+                      <div className="nfr-card" key={section.area}>
+                        <div className="nfr-card-header">
+                          <i className="sdlc-color bi bi-sliders me-2"></i>
+                          <span className="sdlc-color fw-semibold">{section.area}</span>
+                        </div>
+                        <div className="nfr-card-body">
+                          {section.items.map(item => (
+                            <div className=" nfr-item" key={item.code}>
+                              <div className="d-flex justify-content-between">
+                                <div className="sdlc-color fw-semibold">{item.code}: {item.requirement}</div>
+                                
+                              </div>
+                              <ul className="stlc-color small mb-0 mt-2">
+                                {item.stlcTests.map((t, idx) => (
+                                  <li key={idx}>{t}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Tabla comparativa mejorada - Ocupa todo el ancho */}
         <div className="row mt-5 pt-4">
           <div className="col-12">
@@ -561,6 +1041,7 @@ const App: React.FC = () => {
                         <td className="activity-desc sdlc-activity">
                           <div className="activity-content">
                             {phase.description}
+                            
                           </div>
                         </td>
                         <td className="phase-title-cell stlc-phase text-center">
@@ -572,6 +1053,7 @@ const App: React.FC = () => {
                         <td className="activity-desc stlc-activity">
                           <div className="activity-content">
                             {stlc.phases[index]?.description || 'Pruebas de regresión para asegurar que cambios no rompan funcionalidad existente del sistema de reservas.'}
+                            
                           </div>
                         </td>
                       </tr>

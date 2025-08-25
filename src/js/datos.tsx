@@ -127,3 +127,185 @@ export const stlc: Methodology = {
         }
     ]
 };
+
+// ==================== ROLES, RF POR ROL Y NFR ====================
+
+export type RoleKey =
+  | 'cliente'
+  | 'recepcionista'
+  | 'dueno'
+  | 'gerente'
+  | 'adminFinanciero'
+  | 'rrhh'
+  | 'atencionCliente';
+
+export type Role = {
+  key: RoleKey;
+  name: string;
+  description: string;
+  icon: string;
+};
+
+export const roles: Role[] = [
+  { key: 'cliente', name: 'Cliente', description: 'Explora disponibilidad, reserva, paga y gestiona cambios.', icon: 'bi bi-person-check' },
+  { key: 'recepcionista', name: 'Recepcionista', description: 'Opera reservas, check‑in/out y modificaciones.', icon: 'bi bi-person-badge' },
+  { key: 'dueno', name: 'Dueño', description: 'Visión, reportes globales y límites de precios.', icon: 'bi bi-building-fill' },
+  { key: 'gerente', name: 'Gerente General', description: 'Define políticas (depósitos, horarios) y aprueba excepciones.', icon: 'bi bi-person-gear' },
+  { key: 'adminFinanciero', name: 'Admin. Financiero', description: 'Conciliación de pagos y devoluciones.', icon: 'bi bi-cash-coin' },
+  { key: 'rrhh', name: 'RRHH', description: 'Altas/bajas de usuarios, permisos y capacitación.', icon: 'bi bi-people-gear' },
+  { key: 'atencionCliente', name: 'Atención al Cliente', description: 'Seguimiento post‑venta y reclamos.', icon: 'bi bi-headset' },
+];
+
+export type RoleRequirement = {
+  code: string; // RF-01...
+  title: string;
+  details: string;
+  stlcTests: string[]; // Ideas de pruebas
+};
+
+export const roleToRequirements: Record<RoleKey, RoleRequirement[]> = {
+  cliente: [
+    { code: 'RF-01', title: 'Búsqueda por fechas y huéspedes', details: 'Ingresar rango de fechas y cantidad; obtener resultados válidos.', stlcTests: [
+      'Caja negra: combinaciones de fechas válidas/ inválidas (fecha fin < inicio).',
+      'Boundary: huéspedes = 1, máx. permitido; fechas en temporada alta/baja.',
+    ] },
+    { code: 'RF-02', title: 'Disponibilidad y tarifas', details: 'Mostrar tipos de habitación, tarifa total y desglose.', stlcTests: [
+      'Verificación de cálculo: subtotal, impuestos, depósito, moneda.',
+      'UI: orden por precio/ocupación; consistencia en móvil y desktop.',
+    ] },
+    { code: 'RF-03', title: 'Alertas y alternativas', details: 'Si no hay cupo, ofrecer fechas cercanas/tipos alternativos.', stlcTests: [
+      'Flujo sin disponibilidad: propuesta de 3 fechas cercanas y 2 tipos.',
+      'Prueba de regresión al actualizar inventario.',
+    ] },
+    { code: 'RF-04', title: 'Captura de datos antes de pagar', details: 'Nombre, documento y contacto previos al pago.', stlcTests: [
+      'Validación de campos obligatorios y formatos (email, documento).',
+      'Seguridad: no exponer datos sensibles en URL ni logs.',
+    ] },
+    { code: 'RF-06', title: 'Pago de depósito', details: 'Permitir depósito configurable (20–50%).', stlcTests: [
+      'Cálculo correcto del porcentaje; tolerancia de redondeo.',
+      'Integración sandbox pasarela y reintentos ante timeout.',
+    ] },
+    { code: 'RF-10', title: 'Cancelaciones y cambios', details: 'Ver políticas y aplicar penalidades segun plazo.', stlcTests: [
+      'Escenarios: dentro/fuera de plazo; no‑show; cambio de fecha.',
+      'Idempotencia al reintentar cancelación.',
+    ] },
+    { code: 'RF-11', title: 'Notificaciones', details: 'Email/WhatsApp de confirmación y cambios.', stlcTests: [
+      'Entrega y contenido: placeholders, idioma, zona horaria.',
+      'Pruebas de enlace profundo al detalle de reserva.',
+    ] },
+  ],
+  recepcionista: [
+    { code: 'RF-01', title: 'Búsquedas operativas', details: 'Buscar por fechas, nombre o nro. de reserva.', stlcTests: [
+      'Búsqueda parcial/ exacta; rendimiento con 10k reservas.',
+    ] },
+    { code: 'RF-02', title: 'Disponibilidad por tipo', details: 'Visual de ocupación por tipo/fecha y tarifa.', stlcTests: [
+      'Consistencia con inventario maestro; concurrencia con web.',
+    ] },
+    { code: 'RF-05', title: 'Unificar reserva y llegada', details: 'Evitar repetir datos en check‑in.', stlcTests: [
+      'Persistencia: datos fluyen de reserva a check‑in.',
+      'Negativos: edición parcial y conflictos de validación.',
+    ] },
+    { code: 'RF-08', title: 'Check‑in desde 08:00', details: 'Permitir llegadas programadas 10:00.', stlcTests: [
+      'Reglas de horario; zonas horarias; reloj del sistema.',
+    ] },
+    { code: 'RF-09', title: 'Early/Late check‑in/out', details: 'Reglas y cargos automáticos.', stlcTests: [
+      'Cálculo cargos; excepciones aprobadas por gerente.',
+    ] },
+    { code: 'RF-11', title: 'Notificaciones operativas', details: 'Envío de confirmaciones y cambios.', stlcTests: [
+      'Auditoría de envíos y reintentos en cola.',
+    ] },
+  ],
+  dueno: [
+    { code: 'RF-12', title: 'Roles y auditoría', details: 'Permisos y trazabilidad.', stlcTests: [
+      'RBAC: acceso por perfil, intento de escalada.',
+    ] },
+    { code: 'RF-13', title: 'Reportes globales', details: 'Visión de ocupación e ingresos.', stlcTests: [
+      'Exactitud con muestras de datos; tiempos de generación.',
+    ] },
+  ],
+  gerente: [
+    { code: 'RF-06', title: 'Política de depósito', details: 'Definir % y excepciones.', stlcTests: [
+      'Cambio de política: efecto inmediato y versionado.',
+    ] },
+    { code: 'RF-08', title: 'Política de check‑in/out', details: 'Reglas y aprobaciones especiales.', stlcTests: [
+      'Flujos de aprobación; registro de auditoría.',
+    ] },
+    { code: 'RF-10', title: 'Políticas de cancelación', details: 'Plazos, penalidades, devoluciones.', stlcTests: [
+      'Matrices de penalidad; redondeos; edge cases calendario.',
+    ] },
+    { code: 'RF-12', title: 'Gestión de roles', details: 'Permisos avanzados y auditoría.', stlcTests: [
+      'Pruebas de autorización en endpoints críticos.',
+    ] },
+  ],
+  adminFinanciero: [
+    { code: 'RF-07', title: 'Integración pagos', details: 'Conciliación, comprobantes y estados.', stlcTests: [
+      'Webhook: firmado, duplicados; reconciliación con montos.',
+    ] },
+    { code: 'RF-10', title: 'Devoluciones', details: 'Procesar refund según política.', stlcTests: [
+      'Refund parcial/total; fallos de pasarela; reintentos seguros.',
+    ] },
+    { code: 'RF-13', title: 'Reportes financieros', details: 'Depósitos pendientes, ingresos.', stlcTests: [
+      'Cortes por fecha; moneda; consistencia con contabilidad.',
+    ] },
+  ],
+  rrhh: [
+    { code: 'RF-12', title: 'Altas/bajas y permisos', details: 'Gestión de usuarios/roles.', stlcTests: [
+      'Ciclo de vida de usuario; expiración de contraseñas.',
+    ] },
+  ],
+  atencionCliente: [
+    { code: 'RF-11', title: 'Comunicaciones', details: 'Confirmaciones, cambios y cancelaciones.', stlcTests: [
+      'Plantillas multilenguaje; enlaces de seguimiento.',
+    ] },
+    { code: 'RF-10', title: 'Reclamos y no‑show', details: 'Aplicar políticas y gestionar reclamos.', stlcTests: [
+      'Flujos de reclamo y SLA; pruebas de idempotencia.',
+    ] },
+  ],
+};
+
+export type NonFunctionalRequirement = {
+  code: string; // NFR-XX
+  requirement: string;
+  stlcTests: string[];
+};
+
+export const nonFunctionalRequirements: { area: string; items: NonFunctionalRequirement[] }[] = [
+  {
+    area: 'Rendimiento',
+    items: [
+      { code: 'NFR-01', requirement: 'Búsqueda y disponibilidad P95 < 2s con 200 usuarios concurrentes.', stlcTests: [
+        'Pruebas de carga (JMeter/k6): perfiles pico y base.', 'Monitorizar P95/P99 y consumo de recursos.',
+      ] },
+      { code: 'NFR-02', requirement: 'Generación de reportes < 5s para 12 meses.', stlcTests: [
+        'Datasets grandes; caché; paginación.',
+      ] },
+    ],
+  },
+  {
+    area: 'Seguridad',
+    items: [
+      { code: 'NFR-03', requirement: 'Cumplir OWASP Top 10 y PCI‑DSS para pagos.', stlcTests: [
+        'DAST (ZAP) y SAST; pruebas de CSRF/XSS/IDOR.',
+      ] },
+      { code: 'NFR-04', requirement: 'Registro de auditoría para acciones críticas.', stlcTests: [
+        'Verificar integridad de logs, timestamps y usuario.',
+      ] },
+    ],
+  },
+  {
+    area: 'Usabilidad/Accesibilidad',
+    items: [
+      { code: 'NFR-05', requirement: 'Soporte móvil y WCAG AA.', stlcTests: [
+        'A11y: contraste, foco, lector de pantalla; responsive.',
+      ] },
+    ],
+  },
+  {
+    area: 'Confiabilidad',
+    items: [
+      { code: 'NFR-06', requirement: 'Disponibilidad 99.5% y recuperación ante fallos.', stlcTests: [
+        'Pruebas de resiliencia; canary/rollback.',
+      ] },
+    ],
+  },
+];
