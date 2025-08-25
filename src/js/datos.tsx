@@ -263,6 +263,78 @@ export const roleToRequirements: Record<RoleKey, RoleRequirement[]> = {
   ],
 };
 
+// Mapas separados por fase para mostrar información distinta en Planificación vs Análisis
+// Planificación reutiliza los requisitos funcionales existentes (enfoque de alcance/KPIs/roadmap por rol)
+export const roleToRequirementsPlanificacion: Record<RoleKey, RoleRequirement[]> = roleToRequirements;
+
+// Análisis define información distinta enfocada en levantamiento, historias y criterios de aceptación por rol
+export const roleToRequirementsAnalisis: Record<RoleKey, RoleRequirement[]> = {
+  cliente: [
+    { code: 'AN-CL-01', title: 'Personas y escenarios', details: 'Identificar arquetipos (turista, negocio, familia) y sus objetivos al reservar.', stlcTests: [
+      'Revisión estática: trazabilidad persona → historia → criterio.',
+      'Validación de escenarios: reservas con/ sin disponibilidad.',
+    ] },
+    { code: 'AN-CL-02', title: 'Historias de usuario', details: "Redactar HU: 'Como Cliente quiero reservar online para asegurar mi estancia'.", stlcTests: [
+      'Criterios de aceptación Gherkin claros.',
+      'Ambigüedad reducida: términos definidos (depósito, penalidad).',
+    ] },
+    { code: 'AN-CL-03', title: 'Políticas visibles', details: 'Requisitos de UX para mostrar reglas de cancelación, horarios y depósitos.', stlcTests: [
+      'Checklist de contenido obligatorio por legislación local.',
+      'Pruebas de comprensión (usabilidad) sobre políticas.',
+    ] },
+  ],
+  recepcionista: [
+    { code: 'AN-RC-01', title: 'Mapa de procesos front-desk', details: 'Flujos actuales de check‑in/out y cambios, cuellos de botella.', stlcTests: [
+      'Walkthrough con usuarios reales; capturar variantes.',
+      'Validación de reglas de horario y excepciones.',
+    ] },
+    { code: 'AN-RC-02', title: 'Requisitos operativos', details: 'Necesidades de búsqueda por nombre, fecha, estado y ocupación.', stlcTests: [
+      'Cobertura de filtros y combinaciones comunes.',
+      'Consistencia con fuentes de verdad (inventario).',
+    ] },
+    { code: 'AN-RC-03', title: 'Errores y mensajes', details: 'Definir catálogo de errores y mensajes claros para operaciones.', stlcTests: [
+      'Revisión de contenido y códigos; accesibilidad.',
+    ] },
+  ],
+  dueno: [
+    { code: 'AN-DN-01', title: 'Objetivos de negocio', details: 'KPIs clave: ocupación, RevPAR, tasa de cancelación y emisión de reembolsos.', stlcTests: [
+      'Trazabilidad KPI ↔ requerimientos ↔ reportes.',
+    ] },
+    { code: 'AN-DN-02', title: 'Límites y políticas', details: 'Definir límites de precio, temporadas, y aprobación de excepciones.', stlcTests: [
+      'Casos límite y políticas por temporada/temporada alta.',
+    ] },
+  ],
+  gerente: [
+    { code: 'AN-GE-01', title: 'Matriz de políticas', details: 'Deposito, check‑in/out, no‑show, upgrades y excepciones aprobadas.', stlcTests: [
+      'Tablas de decisión completas; pruebas de frontera.',
+    ] },
+    { code: 'AN-GE-02', title: 'Flujos de aprobación', details: 'Requisitos para aprobar excepciones y auditoría asociada.', stlcTests: [
+      'Rastreo de aprobaciones; roles y permisos en flujos.',
+    ] },
+  ],
+  adminFinanciero: [
+    { code: 'AN-AF-01', title: 'Estados de pago', details: 'Definir ciclo de vida del pago: pendiente, confirmado, fallido, reembolsado.', stlcTests: [
+      'Consistencia de estados entre pasarela y sistema.',
+    ] },
+    { code: 'AN-AF-02', title: 'Conciliación', details: 'Requisitos para conciliación diaria y gestión de discrepancias.', stlcTests: [
+      'Casos de duplicados, comisiones y redondeos.',
+    ] },
+  ],
+  rrhh: [
+    { code: 'AN-RH-01', title: 'Modelo de permisos', details: 'Definir roles, permisos y caducidad/rotación de credenciales.', stlcTests: [
+      'Chequear mínimos de seguridad y auditoría.',
+    ] },
+  ],
+  atencionCliente: [
+    { code: 'AN-AC-01', title: 'Plantillas y canales', details: 'Requisitos de comunicación por email/WhatsApp e idiomas.', stlcTests: [
+      'Validación de placeholders; seguimiento de enlaces.',
+    ] },
+    { code: 'AN-AC-02', title: 'Gestión de reclamos', details: 'Flujos y SLA para reclamos y no‑show.', stlcTests: [
+      'Criterios de cierre y tiempos de respuesta.',
+    ] },
+  ],
+};
+
 export type NonFunctionalRequirement = {
   code: string; // NFR-XX
   requirement: string;

@@ -1,7 +1,7 @@
 // App.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import '../styles/App.css';
-import { sdlc, stlc, roles, roleToRequirements, nonFunctionalRequirements, type RoleKey } from '../js/datos';
+import { sdlc, stlc, roles, nonFunctionalRequirements, type RoleKey, roleToRequirementsAnalisis, roleToRequirementsPlanificacion } from '../js/datos';
 
 const App: React.FC = () => {
   // Estados para controlar la rotación del selector
@@ -134,6 +134,11 @@ const App: React.FC = () => {
       closeRolesModal();
     }
   };
+
+  // Mapa de requisitos por rol dependiendo de la fase (0: Planificación, 1: Análisis)
+  const roleRequirementsMap = rolesModalPhaseIndex === 1
+    ? roleToRequirementsAnalisis
+    : roleToRequirementsPlanificacion;
 
   // Reposicionar popover en resize/scroll
   const repositionPopover = () => {
@@ -962,7 +967,7 @@ const App: React.FC = () => {
                         </div>
 
                         <div className="list-group list-group-flush">
-                          {roleToRequirements[selectedRole].map((req) => (
+                          {roleRequirementsMap[selectedRole].map((req) => (
                             <div className="list-group-item role-req-item" key={req.code}>
                               <div className="d-flex justify-content-between align-items-start">
                                 <div>
